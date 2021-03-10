@@ -35,17 +35,28 @@ namespace Components.Ant
 
         private void Update()
         {
+            
             _timer -= Time.deltaTime;
             if (_timer < 0.0f)
             {
-                _health -= _antSettings.healthDecreaseAmount;
+                
+                RandomMovement();
+                
+                //_health -= _antSettings.healthDecreaseAmount;
                 if(_health <= 0.0f)
                     OnDeath();
                 _timer = _antSettings.timeStep;
             }
+
+            
         }
 
+        private void RandomMovement()
+        {
+            _antBody.ProcessAction(EAction.BackMove);
 
+
+        }
 
         private void OnDeath()
         {
