@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Components.Ant
 {
@@ -18,7 +19,15 @@ namespace Components.Ant
         
         private float _timer;
         private float _health;
-        
+
+        private EAction[] actionArray = new EAction[]
+        {
+            EAction.ForwardMove,
+            EAction.BackMove,
+            EAction.RightMove,
+            EAction.LeftMove
+        };
+
 
         #endregion
         
@@ -53,9 +62,9 @@ namespace Components.Ant
 
         private void RandomMovement()
         {
-            _antBody.ProcessAction(EAction.BackMove);
-
-
+            while(!_antBody.ProcessAction(actionArray[Random.Range(0,3)]))
+                continue;
+            
         }
 
         private void OnDeath()

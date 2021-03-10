@@ -99,38 +99,45 @@ namespace Components.Ant
         /// returns true if ant has a way forward in given position, without actually moving ant
         /// </summary>
         /// <returns></returns>
-        public bool CanMoveForward()
+        public bool CanMove(EAction action)
         {
-            Vector3 pos = transform.position;
-            bool straightHit = Physics.Raycast(pos, new Vector3(0.0f, 0.0f, 1.0f),1.0f);
-            bool downHit = Physics.Raycast(pos, new Vector3(0.0f, -.75f, 1.0f),1.0f);
-            bool upHit = Physics.Raycast(pos, new Vector3(0.0f, 1.25f, 1.0f),1.0f);
-            Debug.DrawRay(pos,Vector3.forward*5.0f,Color.blue);
-            //can climb on top of block
-            if (straightHit)
-            {
-                if (upHit)
-                    return false;
-                else
-                {
-                    return true;
-                }
-            }
-            
-            //can move directly forward
-            if (downHit && !straightHit)
-            {
-                return true;
-            }
-            
-            //cam drop down below
-            if (Physics.Raycast(pos + Vector3.forward + Vector3.down, new Vector3(0.0f, -1.0f), 1.0f))
-            {
-                return true;
-            }
-            
+            float XDir = 0.0f;
+            float YDir = 0.0f;
+            float ZDir = 0.0f;
 
-            return false;
+            switch (action)
+            {
+                case EAction.ForwardMove:
+                    ZDir = 1.0f;
+                    break;
+                case EAction.BackMove:
+                    ZDir = -1.0f;
+                    break;
+                case EAction.RightMove:
+                    XDir = 1.0f;
+                    break;
+                case EAction.LeftMove:
+                    XDir = -1.0f;
+                    break;
+            }
+           
+            
+            Vector3 pos = transform.position;
+
+
+            bool straightHit = Physics.Raycast(pos, new Vector3(XDir, 0.0f, ZDir),1.0f);
+            bool downHit = Physics.Raycast(pos, new Vector3(XDir, -.75f, ZDir),1.0f);
+            bool furtherDownHit = Physics.Raycast(pos + new Vector3(XDir, -1.0f, ZDir), new Vector3(0.0f, -1.0f), 1.0f);
+            bool upHit = Physics.Raycast(pos, new Vector3(XDir, 1.25f, ZDir),1.0f);
+            
+            if (straightHit && upHit)
+                return false;
+
+            if (!downHit && !furtherDownHit)
+                return false;
+
+            return true;
+
         }
 
         
