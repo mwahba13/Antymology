@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Animations;
 
 namespace Components.Ant
 {
@@ -39,19 +40,22 @@ namespace Components.Ant
             float XDir = 0.0f;
             float YDir = 0.0f;
             float ZDir = 0.0f;
-
+            float rotate = 0.0f;
             switch (action)
             {
                 case EAction.ForwardMove:
                     ZDir = 1.0f;
                     break;
                 case EAction.BackMove:
+                    rotate = 180.0f;
                     ZDir = -1.0f;
                     break;
                 case EAction.RightMove:
+                    rotate = 90.0f;
                     XDir = 1.0f;
                     break;
                 case EAction.LeftMove:
+                    rotate = 270.0f;
                     XDir = -1.0f;
                     break;
             }
@@ -82,7 +86,7 @@ namespace Components.Ant
 
 
             transform.Translate(new Vector3(XDir,YDir,ZDir));
-
+            
 
 
             return true;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Components.Terrain.Blocks;
 using UnityEditor;
 using UnityEngine;
 
@@ -304,6 +305,15 @@ namespace Antymology.Terrain
             vertices.Add(new Vector3(x, y - 1, z));
             AddRecent6Triangles(triangles, ref numFaces);
             AddRecentFaceTexture(block, uvs);
+        }
+        
+        /// <summary>
+        /// Returns chunk position as a vector
+        /// </summary>
+        /// <returns></returns>
+        public Vector3 GetChunkWorldPosition()
+        {
+            return new Vector3(x, y, z);
         }
 
         #endregion

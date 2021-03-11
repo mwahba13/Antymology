@@ -1,32 +1,77 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Antymology.Terrain;
 using UnityEngine;
 
-public abstract class AbstractBlock
+namespace Components.Terrain.Blocks
 {
+    public enum BlockType
+    {
+        Acidic,
+        Air,
+        Container,
+        Grass,
+        Mulch,
+        Nest,
+        Stone
+    };
 
-    /// <summary>
-    /// The texture map coordinates of this block.
-    /// </summary>
-    public abstract Vector2 tileMapCoordinate();
+    public static class BlockHelper
+    {
+        public static BlockType GetBlockType(AbstractBlock block)
+        {
+            if (block.GetType() == typeof(AcidicBlock))
+                return BlockType.Acidic;
 
-    /// <summary>
-    /// If the block is visible or not.
-    /// </summary>
-    public abstract bool isVisible();
+            if (block.GetType() == typeof(AirBlock))
+                return BlockType.Air;
 
-    /// <summary>
-    /// The woorld x coordinate of this block.
-    /// </summary>
-    public int worldXCoordinate;
+            if (block.GetType() == typeof(ContainerBlock))
+                return BlockType.Container;
 
-    /// <summary>
-    /// The world y coordinate of this block.
-    /// </summary>
-    public int worldYCoordinate;
+            if (block.GetType() == typeof(GrassBlock))
+                return BlockType.Grass;
 
-    /// <summary>
-    /// The world z coordinate of this block.
-    /// </summary>
-    public int worldZCoordinate;
+            if (block.GetType() == typeof(MulchBlock))
+                return BlockType.Mulch;
+
+            if (block.GetType() == typeof(NestBlock))
+                return BlockType.Nest;
+
+            if (block.GetType() == typeof(StoneBlock))
+                return BlockType.Stone;
+
+            return BlockType.Air;
+        }
+    }
+    
+
+    public abstract class AbstractBlock
+    {
+
+        /// <summary>
+        /// The texture map coordinates of this block.
+        /// </summary>
+        public abstract Vector2 tileMapCoordinate();
+
+        /// <summary>
+        /// If the block is visible or not.
+        /// </summary>
+        public abstract bool isVisible();
+
+        /// <summary>
+        /// The woorld x coordinate of this block.
+        /// </summary>
+        public int worldXCoordinate;
+
+        /// <summary>
+        /// The world y coordinate of this block.
+        /// </summary>
+        public int worldYCoordinate;
+
+        /// <summary>
+        /// The world z coordinate of this block.
+        /// </summary>
+        public int worldZCoordinate;
+    }
 }

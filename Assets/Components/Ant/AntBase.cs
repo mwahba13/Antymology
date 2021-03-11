@@ -1,4 +1,6 @@
 ﻿using System;
+using Antymology.Terrain;
+using Components.Terrain.Blocks;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -16,6 +18,7 @@ namespace Components.Ant
         private AntSettings _antSettings;
 
         private AntBody _antBody;
+
         
         private float _timer;
         private float _health;
@@ -37,8 +40,9 @@ namespace Components.Ant
         {
             _health = _antSettings.initalHealth;
             _antBody = gameObject.AddComponent<AntBody>() as AntBody;
+            _timer = _antSettings.timeStep;
             
-            _timer = 0.0f;
+            
         }
 
 
@@ -62,13 +66,45 @@ namespace Components.Ant
 
         private void RandomMovement()
         {
-            while(!_antBody.ProcessAction(actionArray[Random.Range(0,3)]))
-                continue;
+
+            if (Random.Range(0.0f, 1.0f) > 0.5)
+            {
+                if (GetBlockUnderneath() == BlockType.Mulch)
+                {
+                    EatMulch();
+                }
+                
+            }
+            else
+            {
+                while(!_antBody.ProcessAction(actionArray[Random.Range(0,3)]))
+                    continue;
+            }
+            
+            //move in random direction
+
+            
             
         }
 
         private void OnDeath()
         {
+            
+        }
+
+        private void EatMulch()
+        {
+            Debug.Log("Eat mulch");
+
+            //remove block below ant
+            AbstractBlock air = new AirBlock();
+            WorldManager.Instance.SetBlock((int)transform.position.x,
+                (int)transform.position.y - 1,(int)transform.position.z,air);
+            
+            //move ant down
+            transform.Translate(Vector3.down);
+
+            _health += _antSettings.healthIncreaseAmount;
             
         }
         
@@ -77,6 +113,21 @@ namespace Components.Ant
 
 
         #region helpers
+    
+        /// <summary>
+        /// Gets the block object directly underneath the ant
+        /// </summary>
+        /// <returns></returns>
+        private BlockType GetBlockUnderneath()
+        {
+
+            Vector3 pos = transform.position;
+            
+            AbstractBlock block =  WorldManager.Instance.GetBlock((int) pos.x, 
+                (int) pos.y - 1, (int) pos.z);
+            
+            return (BlockHelper.GetBlockType(block));
+        }
 
         
 
