@@ -45,24 +45,32 @@ namespace Components.Ant
             
         }
 
+        public void Tick()
+        {
+            RandomMovement();
+            if(_health <= 0.0f)
+                KillAnt();
+            
+        }
 
         private void Update()
         {
-            
+            /*
             _timer -= Time.deltaTime;
             if (_timer < 0.0f)
             {
                 
                 RandomMovement();
                 
-                //_health -= _antSettings.healthDecreaseAmount;
-                if(_health <= 0.0f)
-                    OnDeath();
-                _timer = _antSettings.timeStep;
-            }
+                //DepleteHealthOnTick();
 
+                _timer = _antSettings.timeStep;
+            }   
+            */
             
         }
+        
+     
 
         private void RandomMovement()
         {
@@ -86,10 +94,30 @@ namespace Components.Ant
             
             
         }
+        private void DepleteHealthOnTick()
+        {
+            float deplete = _antSettings.healthDecreaseAmount;
+            if (GetBlockUnderneath() == BlockType.Acidic)
+                deplete *= 2.0f;
+            _health -= deplete;
+        }
 
-        private void OnDeath()
+
+    
+
+        #endregion
+
+        #region Actions 
+        private void KillAnt()
         {
             
+        }
+        
+        private void DigBlock()
+        {
+            AbstractBlock air = new AirBlock();
+            WorldManager.Instance.SetBlock((int)transform.position.x,
+                (int)transform.position.y - 1,(int)transform.position.z,air);
         }
 
         private void EatMulch()
@@ -97,9 +125,7 @@ namespace Components.Ant
             Debug.Log("Eat mulch");
 
             //remove block below ant
-            AbstractBlock air = new AirBlock();
-            WorldManager.Instance.SetBlock((int)transform.position.x,
-                (int)transform.position.y - 1,(int)transform.position.z,air);
+            DigBlock();
             
             //move ant down
             transform.Translate(Vector3.down);
@@ -107,6 +133,9 @@ namespace Components.Ant
             _health += _antSettings.healthIncreaseAmount;
             
         }
+
+
+
         
 
         #endregion

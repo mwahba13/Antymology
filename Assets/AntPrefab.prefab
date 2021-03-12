@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1965796254455186142}
   - component: {fileID: 42178413831638163}
   - component: {fileID: 1852694371133892844}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ GameObject:
   - component: {fileID: 6406839863851283020}
   m_Layer: 0
   m_Name: AntPrefab
-  m_TagString: Untagged
+  m_TagString: Ant
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

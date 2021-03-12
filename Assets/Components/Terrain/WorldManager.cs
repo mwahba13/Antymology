@@ -2,8 +2,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
+using Components;
 using Components.Terrain.Blocks;
 using UnityEngine;
+using Vector3 = UnityEngine.Vector3;
 
 namespace Antymology.Terrain
 {
@@ -17,6 +20,11 @@ namespace Antymology.Terrain
         /// The prefab containing the ant.
         /// </summary>
         public GameObject antPrefab;
+
+        /// <summary>
+        /// Number of ants to spawn in world
+        /// </summary>
+        public int NumberOfAnts;
 
         /// <summary>
         /// The material used for eech block.
@@ -43,6 +51,8 @@ namespace Antymology.Terrain
         /// </summary>
         private SimplexNoise SimplexNoise;
 
+        private SimulationManager _simManager;
+        
         #endregion
 
         #region Initialization
@@ -69,6 +79,8 @@ namespace Antymology.Terrain
                 ConfigurationManager.Instance.World_Diameter,
                 ConfigurationManager.Instance.World_Height,
                 ConfigurationManager.Instance.World_Diameter];
+
+            TryGetComponent<SimulationManager>(out _simManager);
         }
 
         /// <summary>
@@ -82,16 +94,13 @@ namespace Antymology.Terrain
             Camera.main.transform.position = new Vector3(0 / 2, Blocks.GetLength(1), 0);
             Camera.main.transform.LookAt(new Vector3(Blocks.GetLength(0), 0, Blocks.GetLength(2)));
 
-            GenerateAnts();
+            
+            _simManager.GenerateAnts(NumberOfAnts,(ConfigurationManager.Instance.World_Diameter*
+                    ConfigurationManager.Instance.Chunk_Diameter),ConfigurationManager.Instance.World_Height
+                                                                  *ConfigurationManager.Instance.World_Diameter);
         }
 
-        /// <summary>
-        /// TO BE IMPLEMENTED BY YOU
-        /// </summary>
-        private void GenerateAnts()
-        {
-            throw new NotImplementedException();
-        }
+
 
         #endregion
 
@@ -147,6 +156,17 @@ namespace Antymology.Terrain
                 ChunkZCoordinate * LocalZCoordinate
             ];
         }
+
+        /// <summary>
+        /// For when we just want the block type, not the block
+        /// </summary>
+        /// <param name="blockPos"></param>
+        /// <returns></returns>
+        public BlockType GetBlockType(Vector3 blockPos)
+        {
+            return (BlockHelper.GetBlockType(GetBlock((int)blockPos.x,(int) blockPos.y,(int) blockPos.z)));
+        }
+        
 
         /// <summary>
         /// sets an abstract block type at the desired world coordinates.
