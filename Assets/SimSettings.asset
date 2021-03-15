@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dc4da71c9b14dc5bb17417189dff883, type: 3}
   m_Name: SimSettings
   m_EditorClassIdentifier: 
-  SimulationTickInterval: 0
+  SimulationTickInterval: 1

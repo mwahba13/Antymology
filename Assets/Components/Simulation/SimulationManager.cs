@@ -19,10 +19,13 @@ namespace Components
 
         public SimulationSettings simSettings;
         public GameObject AntPrefab;
+        public GameObject QueenPrefab;
 
         private float _tickTimer;
-
-        private List<AntBase> antList = new List<AntBase>();
+        private int _generation = 0;
+        
+        private List<AntBase> _antList = new List<AntBase>();
+        private Queen.Queen _queen;
 
         #endregion
 
@@ -36,26 +39,30 @@ namespace Components
 
         private void Update()
         {
+            
             _tickTimer -= Time.deltaTime;
             if (_tickTimer < 0.0f)
             {
+                TickAnts();
                 _tickTimer = simSettings.SimulationTickInterval;
             }
             
         }
 
-        public void GenerateAnts(int NumAnts,int dimensions,int height)
+        public void GenerateAnts(int numAnts,int dimensions,int height)
         {
-            
-            PerlinNoiseAntGenerator(NumAnts,dimensions,height);
+            RandomAntGenerator(numAnts,dimensions,height);
+            //PerlinNoiseAntGenerator(NumAnts,dimensions,height);
+            //SpawnQueen(height,dimensions);
         }
 
 
         private void TickAnts()
         {
-            foreach (var ant in antList)
+            foreach (var ant in _antList)
             {
                 ant.Tick();
+                
             }
         }
 
@@ -65,9 +72,36 @@ namespace Components
 
 
         #region AntGenerators
-        
+
+        private void RandomAntGenerator(int numAnts, int dimensions, int height)
+        {
+            int i = 0;
+            //spawn peasant ants
+            while (i < numAnts - 1)
+            {
+                int tempX = Random.Range(1, dimensions - 1);
+                int tempZ = Random.Range(1, dimensions - 1);
+
+                if (SpawnAnt(tempX, tempZ, height, false))
+                    i++;
+            }
+            
+            //spawn queen
+            bool isQueenSpawned = false;
+
+            while (!isQueenSpawned)
+            {
+                int tempX = Random.Range(1, dimensions - 1);
+                int tempZ = Random.Range(1, dimensions - 1);
+
+                if (SpawnAnt(tempX, tempZ, height, true))
+                    isQueenSpawned = true;
+            }
+            
+        }
+
         /// <summary>
-        /// Spawns ants in map based on perlin noise 
+        /// Spawns ants in map based on perlin noise. One ant randomly chosen to be queen 
         /// </summary>
         /// <param name="numAnts"></param>
         private void PerlinNoiseAntGenerator(int numAnts,int dimensions,int height)
@@ -97,7 +131,8 @@ namespace Components
                         {
                             int randInt1 = Random.Range(0, 3)*quadrantSize;
                             int randInt2 = Random.Range(0, 3)*quadrantSize;
-                            if (SpawnAnt(x-randInt1, z-randInt2, height))
+                           
+                            if (SpawnAnt(x-randInt1, z-randInt2, height,false))
                                 numAntsSpawned++;
                             if (numAntsSpawned >= numAnts)
                                 break;
@@ -110,26 +145,27 @@ namespace Components
                     }
                     
                 }
-                
-                
-                //if that first pass didnt place all the ants, spawn the rest randomly
-                while (numAntsSpawned < numAnts)
-                {
-                    Debug.Log("While loop");
-                    int tempX = Random.Range(5, dimensions-4);
-                    int tempZ = Random.Range(5, dimensions-4);
 
-
-                    SpawnAnt(tempX ,tempZ ,height);
-                    numAntsSpawned++;
-
-                }
-                
-                Debug.Log("Ant size: " + antList.Count);
-            
 
         }
 
+        /// <summary>
+        /// spawns the queen somewhere randomly
+        /// </summary>
+        private void SpawnQueen(int height,int dimensions)
+        {
+            bool isSpawned = false;
+
+            while (!isSpawned)
+            {
+                int tempX = Random.Range(2, dimensions - 3);
+                int tempZ = Random.Range(2, dimensions - 3);
+
+                if (SpawnAnt(tempX, tempZ, height, true))
+                    isSpawned = true;
+            }
+        }
+        
         #endregion
 
 
@@ -141,8 +177,9 @@ namespace Components
         /// </summary>
         /// <param name="x"></param>
         /// <param name="z"></param>
+        /// <param name="height"></param>
         /// <returns></returns>
-        private bool SpawnAnt(int x, int z, int height)
+        private bool SpawnAnt(int x, int z, int height, bool isQueen)
         {
             //we start at top of box and work our way down until we hit a block
             Vector3 boxMarch = new Vector3(x, height-1, z);
@@ -157,22 +194,33 @@ namespace Components
             Ray antCheckRay = new Ray(boxMarch, Vector3.up);
             RaycastHit antCheckHit;
 
+            //check if space already occupied
             if(Physics.SphereCast(antCheckRay, 1.0f, out antCheckHit))
-                if (antCheckHit.collider.tag.Equals("Ant"))
+                if (antCheckHit.collider.tag.Equals("Ant") || antCheckHit.collider.tag.Equals("Queen"))
                     return false;
-            
-            
-            //check if already ant on spot
 
-            //add ant to list
-            GameObject newObj = Instantiate<GameObject>(AntPrefab,boxMarch,
-                Quaternion.identity);
+            if (isQueen)
+            {
+                GameObject obj = Instantiate<GameObject>(QueenPrefab, boxMarch, Quaternion.identity);
+                _queen = obj.GetComponent<Queen.Queen>();
+                return true;
+            }
+            else
+            {
+                //add ant to list
+                GameObject newObj = Instantiate<GameObject>(AntPrefab,boxMarch,
+                    Quaternion.identity);
 
-            if (!newObj)
-                return false;
-            antList.Add(newObj.GetComponent<AntBase>());
+                if (!newObj)
+                    return false;
+                _antList.Add(newObj.GetComponent<AntBase>());
             
-            return true;
+                return true;
+            }
+
+            return false;
+
+
         }
 
         #endregion
