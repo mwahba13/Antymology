@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7dc4da71c9b14dc5bb17417189dff883, type: 3}
-  m_Name: SimSettings
+  m_Script: {fileID: 11500000, guid: 502725c06eb640cbba918b86a7e7080e, type: 3}
+  m_Name: QueenSettings
   m_EditorClassIdentifier: 
-  SimulationTickInterval: 1
-  TicksUntilEvolution: 5
-  ProbabilityOfMutation: 1
-  MutationPercentage: 0.2
+  initalHealth: 0
+  healthDecreaseAmount: 0
+  healthIncreaseAmount: 0
+  timeStep: 0

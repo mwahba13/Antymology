@@ -358,7 +358,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbd0fdbaf66dc1a4488d999aa299645f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumberOfAnts: 25
+  NumberOfAnts: 3
   blockMaterial: {fileID: 2100000, guid: 4db9d8fce1a69b74f81daf1375c9ed88, type: 2}
 --- !u!4 &964896558
 Transform:
@@ -412,3 +412,6 @@ MonoBehaviour:
     type: 3}
   QueenPrefab: {fileID: 3195483590430319263, guid: 68782f802d91aa54cbd67377ff8f9225,
     type: 3}
+  _tickTimer: 2
+  _generation: 0
+  _ticksUntilEvolution: 5

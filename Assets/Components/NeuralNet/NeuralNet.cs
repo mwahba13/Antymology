@@ -118,7 +118,19 @@ namespace NeuralNet
             return neurons[neurons.Length - 1];
         }
 
+
+        public float[][][] GetWeights()
+        {
+            return weights;
+        }
         
+        
+        public void SetWeights(float[][][] newWeight)
+        {
+            weights = newWeight;
+        }
+
+
 
     }
 }

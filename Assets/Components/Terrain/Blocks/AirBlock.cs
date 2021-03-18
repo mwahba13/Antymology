@@ -47,6 +47,7 @@ namespace Antymology.Terrain
             throw new Exception("An invisible tile cannot have a tile map coordinate.");
         }
 
+        /*
         /// <summary>
         /// THIS CURRENTLY ONLY EXISTS AS A WAY OF SHOWING YOU WHATS POSSIBLE.
         /// </summary>
@@ -55,7 +56,7 @@ namespace Antymology.Terrain
         {
             throw new NotImplementedException();
         }
-
+*/
         #endregion
 
     }

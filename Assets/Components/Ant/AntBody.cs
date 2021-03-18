@@ -25,6 +25,7 @@ namespace Components.Ant
         Dig ,
         GiveHealth,
         Build,
+        Nothing,
         
         
     }
@@ -45,14 +46,9 @@ namespace Components.Ant
         
         #region Actions
         
-        public void KillAnt()
-        {
-            
-        }
         
-        public void DigBlock()
+        private void DigBlock()
         {
-            Debug.Log("Dig block at: " + transform.position);
             AbstractBlock air = new AirBlock();
             WorldManager.Instance.SetBlock((int)transform.position.x,
                 (int)transform.position.y - 1,(int)transform.position.z,air);
@@ -60,7 +56,7 @@ namespace Components.Ant
             transform.Translate(Vector3.down);
         }
 
-        public void EatMulch()
+        private void EatMulch()
         {
             //remove block below ant
             DigBlock();
@@ -70,16 +66,21 @@ namespace Components.Ant
         }
 
 
-        public void GiveHealth(AntBase reciever)
+        private void GiveHealth(AntBase reciever)
         {
             
         }
-
-        public void BuildBlock()
+        
+        private void BuildBlock()
         {
+            AbstractBlock nestBlock = new NestBlock();
+            transform.Translate(Vector3.up);
+            WorldManager.Instance.SetBlock((int)transform.position.x,
+                (int)transform.position.y-1,(int)transform.position.z,nestBlock);
             
+            _antBase.SetHealth(_antBase.GetHealth()/3);
         }
-
+        
         #endregion
         
         
@@ -120,6 +121,11 @@ namespace Components.Ant
                     break;
                 case EAction.Eat:
                     EatMulch();
+                    return true;
+                case EAction.Build:
+                    BuildBlock();
+                    return true;
+                case EAction.Nothing:
                     return true;
                 
                 
@@ -164,6 +170,7 @@ namespace Components.Ant
 
         #region helpers
         
+        //returns list of valid actions - called every tick!
         public List<EAction> GetValidMoveList(bool isQueen)
         {
             List<EAction> outList = new List<EAction>();
@@ -188,13 +195,15 @@ namespace Components.Ant
                 outList.Add(EAction.RightMove);
             
             
+            
             //give health functions
             //if(CanGiveHealth())
                 //outList.Add(EAction.GiveHealth);
             
-            //if(isQueen)
-                //outList.Add(EAction.Build);
-
+            if(isQueen)
+                outList.Add(EAction.Build);
+            
+            outList.Add(EAction.Nothing);
 
             return outList;
         }
@@ -216,7 +225,8 @@ namespace Components.Ant
             
             return (BlockHelper.GetBlockType(block));
         }
-
+        
+        //todo: functionality surrounding give health
         private bool CanGiveHealth()
         {
             Collider[] neighbours = Physics.OverlapSphere(transform.position, 1.0f);
@@ -233,6 +243,7 @@ namespace Components.Ant
 
             return hasNeighbour;
         }
+        
         
         
         

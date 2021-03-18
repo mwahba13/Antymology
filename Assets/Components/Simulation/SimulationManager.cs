@@ -21,11 +21,15 @@ namespace Components
         public GameObject AntPrefab;
         public GameObject QueenPrefab;
 
+        [SerializeField]
         private float _tickTimer;
+        [SerializeField]
         private int _generation = 0;
+        [SerializeField]
+        private int _ticksUntilEvolution;
         
         private List<AntBase> _antList = new List<AntBase>();
-        private Queen.Queen _queen;
+        private AntBase _queen;
 
         #endregion
 
@@ -34,6 +38,7 @@ namespace Components
         private void Start()
         {
             _tickTimer = 0.0f;
+            _ticksUntilEvolution = simSettings.TicksUntilEvolution;
         }
 
 
@@ -45,6 +50,13 @@ namespace Components
             {
                 TickAnts();
                 _tickTimer = simSettings.SimulationTickInterval;
+
+                _ticksUntilEvolution--;
+                if(_ticksUntilEvolution <= 0)
+                    Antvolution();
+                
+
+
             }
             
         }
@@ -56,14 +68,84 @@ namespace Components
             //SpawnQueen(height,dimensions);
         }
 
+        //TODO: ant learning
+        private void Antvolution()
+        {
+            //we get the top two fitness values and do some reproducing
+            AntBase topAnt = null;
+            AntBase secondAnt = null;
+
+            float bestFit = 0;
+            
+            //get top ant
+            foreach (var ant in _antList)
+                if (ant.GetFitnessFunction() > bestFit)
+                    topAnt = ant;
+
+            bestFit = 0;
+            //get second top ant
+            foreach (var ant in _antList)
+            {
+                if (ant.GetFitnessFunction() > bestFit && !ant.Equals(topAnt))
+                    secondAnt = ant;
+            }
+
+            float[][][] childWeights = SexualHealing(topAnt, secondAnt);
+            
+            _ticksUntilEvolution = simSettings.TicksUntilEvolution;
+            _generation++;
+        }
+
+        //todo: mutation
+        /*When I get that feeling
+         *I want sexual healing
+         *Sexual healing, oh baby
+         *Makes me feel so fine
+         */
+        private float[][][] SexualHealing(AntBase Mommy, AntBase Daddy)
+        {
+            float[][][] outWeights = null;
+            float[][][] mommyWeights = Mommy.GetWeights();
+            float[][][] daddyWeights = Mommy.GetWeights();
+
+            for (int i = 0; i < mommyWeights.Length; i++)
+            {
+                for (int j = 0; j < mommyWeights[i].Length; j++)
+                {
+                    for (int k = 0; k < mommyWeights[i][k].Length; k++)
+                    {
+                        float insert;
+                        float randFloat = Random.Range(0.0f, 1.0f);
+                        //crossover
+                        if (randFloat > 0.5f)
+                            insert = mommyWeights[i][j][k];
+                        else
+                            insert = daddyWeights[i][j][k];
+
+                        if (randFloat > simSettings.ProbabilityOfMutation)
+                            insert = Random.Range(insert - (insert * simSettings.MutationPercentage),
+                                insert + (insert * simSettings.MutationPercentage));
+                        
+                        outWeights[i][j][k] = insert;
+
+                    }
+                }
+            }
+            
+            return outWeights;
+        }
 
         private void TickAnts()
         {
+            
             foreach (var ant in _antList)
             {
                 ant.Tick();
                 
             }
+            
+            _queen.Tick();
+            
         }
 
         
@@ -71,6 +153,11 @@ namespace Components
         #endregion
 
 
+        
+        
+        
+        
+        
         #region AntGenerators
 
         private void RandomAntGenerator(int numAnts, int dimensions, int height)
@@ -149,6 +236,20 @@ namespace Components
 
         }
 
+
+        
+        #endregion
+
+
+        #region helpers
+
+        public Vector3 GetQueenLocation()
+        {
+            return _queen.transform.position;
+            
+        }
+        
+        
         /// <summary>
         /// spawns the queen somewhere randomly
         /// </summary>
@@ -165,12 +266,18 @@ namespace Components
                     isSpawned = true;
             }
         }
+
+        //TODO: kill ant
+        /// <summary>
+        /// Kills ant
+        /// </summary>
+        /// <param name="deadAnt"></param>
+        /// <returns></returns>
+        public bool KillAnt(AntBase deadAnt)
+        {
+            return true;
+        }
         
-        #endregion
-
-
-        #region helpers
-
         /// <summary>
         /// spawns ant in map on top of block at x,z coords
         /// returns false if space already occupied
@@ -202,7 +309,9 @@ namespace Components
             if (isQueen)
             {
                 GameObject obj = Instantiate<GameObject>(QueenPrefab, boxMarch, Quaternion.identity);
-                _queen = obj.GetComponent<Queen.Queen>();
+                _queen = obj.GetComponent<AntBase>();
+                _queen.SetIsQueen(true);
+                _queen.SetInitPos(boxMarch);
                 return true;
             }
             else
@@ -213,7 +322,11 @@ namespace Components
 
                 if (!newObj)
                     return false;
-                _antList.Add(newObj.GetComponent<AntBase>());
+                AntBase antBase = newObj.GetComponent<AntBase>();
+                antBase.SetInitPos(boxMarch);
+                
+                _antList.Add(antBase);
+              
             
                 return true;
             }

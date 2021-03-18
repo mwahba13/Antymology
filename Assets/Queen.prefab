@@ -90,7 +90,7 @@ GameObject:
   - component: {fileID: 2466660274577827029}
   - component: {fileID: 2851096196460561824}
   - component: {fileID: 6625659764273740705}
-  - component: {fileID: 286874945641504068}
+  - component: {fileID: 3495390756600588400}
   m_Layer: 8
   m_Name: Queen
   m_TagString: Ant
@@ -160,7 +160,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &286874945641504068
+--- !u!114 &3495390756600588400
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -169,7 +169,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3195483590430319263}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b1746ebcbc34fd4ba80e51553bcf9fe, type: 3}
+  m_Script: {fileID: 11500000, guid: 0856486f3b4c4c04842fa69fd8d45209, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _antSettings: {fileID: 11400000, guid: b8e3625a0c933524d8c82f85b6f4663c, type: 2}
+  _antSettings: {fileID: 11400000, guid: 82c1525fcba4de04fa7cc1fe43c1041b, type: 2}
