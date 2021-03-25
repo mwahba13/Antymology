@@ -19,16 +19,26 @@ namespace Components.Ant
         
         
         [SerializeField]
-        private AntSettings _antSettings;
+        public AntSettings _antSettings;
+
 
         private AntBody _antBody;
         private AntBrain _antBrain;
 
+        [SerializeField]
         private float[] _decisionWeights;
         private float _timer;
+        [SerializeField]
         private float _health;
         
         private bool _isQueen;
+        private int _antID;
+        
+        //ant stats needed for NN
+        public float healthDonated = 0.0f;
+        public float blocksBuilt = 0.0f;
+        public float blocksDug = 0.0f;
+        public float mulchEaten = 0.0f;
 
         //initial position of the ant - will use this for fitness function
         private Vector3 _initPos;
@@ -61,14 +71,36 @@ namespace Components.Ant
             //get list of possible movements
             List<EAction> actionList = _antBody.GetValidMoveList(_isQueen);
 
-            //todo: all nn inputs
-           float[] nnOut = _antBrain.RunNeuralNet((
-                            SimulationManager.Instance.GetQueenLocation() - transform.position).magnitude,
-                            (float)_antBody.GetBlockUnderneath()
-                            );
-
+            float[] nnOut;
+            if (_isQueen)
+                nnOut = _antBrain.RunQueenNeuralNet(
+                    blocksBuilt,
+                    mulchEaten,
+                    _antBody.GetNeighbourCount()
+                    );
+            else
+                nnOut = _antBrain.RunAntNeuralNet(
+                                blocksDug,
+                                _health,
+                                healthDonated
+                                );
+            
+            Debug.Log(" ");
+            Debug.Log("Ant: " + this.GetInstanceID());
+            Debug.Log("Fr: " + nnOut[0]);
+            Debug.Log("Bck: "+nnOut[1]);
+            Debug.Log("Rit: "+nnOut[2]);
+            Debug.Log("Lft: "+nnOut[3]);
+            Debug.Log("Eat: "+nnOut[4]);
+            Debug.Log("Dig: "+nnOut[5]);
+            Debug.Log("Hlth: "+nnOut[6]);
+            Debug.Log("Bld: "+nnOut[7]);
+            Debug.Log("Nth: "+nnOut[8]);
+            
+            
             
             DecideAction(nnOut,actionList);
+            //DepleteHealthOnTick();
             //RandomMovement();
         }
 
@@ -114,7 +146,7 @@ namespace Components.Ant
                 if (actionList.Contains(tryAction))
                 {
                     Debug.Log("Ant: " + this.name + "Decision made: " + tryAction);
-                    ;
+                    
                     _antBody.ProcessAction(tryAction);
                     break;
                 }
@@ -154,9 +186,33 @@ namespace Components.Ant
 
         #region helpers
 
+        public void ResetStats()
+        {
+         healthDonated = 0.0f;
+         blocksBuilt = 0.0f;
+         blocksDug = 0.0f;
+        }
+
+        public int GetAntID()
+        {
+            return _antID;
+            
+        }
+
+        public void SetAntID(int newID)
+        {
+            _antID = newID;
+        }
+        
+        
         public void DecrementHealth(bool isDoubled)
         {
             _health += _antSettings.healthDecreaseAmount;
+        }
+
+        public void DecrementHealth(float amnt)
+        {
+            _health -= amnt;
         }
 
         public void IncrementHealth()
@@ -181,6 +237,17 @@ namespace Components.Ant
             return _antBrain.GetWeights();
         }
 
+        //TODO: Implement mutation
+        public void MutateWeights(float mutatePercentage)
+        {
+            _antBrain.MutateWeights(mutatePercentage);
+        }
+
+        public void SetWeight(float[][][] newWeights)
+        {
+            _antBrain.SetWeights(newWeights);
+        }
+        
         public float GetFitnessFunction()
         {
             return _antBrain.GetFitnessFunction();

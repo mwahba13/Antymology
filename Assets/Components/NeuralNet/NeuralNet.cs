@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System;
+using UnityEngine;
+using Random = System.Random;
 
 namespace NeuralNet
 {
@@ -9,7 +11,8 @@ namespace NeuralNet
         private int[] layers = null;
         private float[][] neurons = null;
         private float[][] biases = null;
-        private float[][][] weights = null;
+        [SerializeField]
+        public float[][][] weights = null;
         private int[] activations = null;
 
         public float fitness = 0;
@@ -86,7 +89,8 @@ namespace NeuralNet
                 weightsList.Add(layerWeightList.ToArray());
                 
             }
-
+            
+            
             weights = weightsList.ToArray();
 
         }

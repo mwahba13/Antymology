@@ -13,6 +13,9 @@ namespace Components.Ant
 
         [Tooltip("Amount by which ants health increases after eating mulch")]
         public float healthIncreaseAmount;
+
+        [Tooltip("Amount of health an ant gives to another ant")]
+        public float healthDonationAmount;
         
         public float timeStep;
 

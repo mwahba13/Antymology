@@ -39,8 +39,9 @@ namespace Components.Ant
         #region fields
 
         public AntBase _antBase;
-
-        private List<GameObject> _neighbourList;
+    
+        [SerializeField]
+        private List<AntBase> _neighbourList = new List<AntBase>();
 
         #endregion
         
@@ -54,6 +55,7 @@ namespace Components.Ant
                 (int)transform.position.y - 1,(int)transform.position.z,air);
             //move ant down
             transform.Translate(Vector3.down);
+            _antBase.blocksDug++;
         }
 
         private void EatMulch()
@@ -66,11 +68,29 @@ namespace Components.Ant
         }
 
 
-        private void GiveHealth(AntBase reciever)
+        private void GiveHealth()
         {
+            //check out neighbours and give health to the neighbour with the lowest health
+            float lowestHealth = 420;
+            AntSettings antSettings = _antBase._antSettings;
+            AntBase neighAnt = null;
+
+            foreach (var ant in _neighbourList)
+            {
+                if (ant.GetHealth() < lowestHealth)
+                {
+                    neighAnt = ant;
+                    lowestHealth = ant.GetHealth();
+                }
+            }
             
+            neighAnt.SetHealth(neighAnt.GetHealth()+antSettings.healthDonationAmount);
+            _antBase.DecrementHealth(antSettings.healthDonationAmount);
+            _antBase.healthDonated += antSettings.healthDonationAmount;
+
         }
         
+        //TODO: Fix glitch that queen builds blocks beyond upper limit
         private void BuildBlock()
         {
             AbstractBlock nestBlock = new NestBlock();
@@ -79,6 +99,7 @@ namespace Components.Ant
                 (int)transform.position.y-1,(int)transform.position.z,nestBlock);
             
             _antBase.SetHealth(_antBase.GetHealth()/3);
+            _antBase.blocksBuilt++;
         }
         
         #endregion
@@ -117,13 +138,14 @@ namespace Components.Ant
                 case EAction.Dig:
                     DigBlock();
                     return true;
-                case EAction.GiveHealth:
-                    break;
                 case EAction.Eat:
                     EatMulch();
                     return true;
                 case EAction.Build:
                     BuildBlock();
+                    return true;
+                case EAction.GiveHealth:
+                    GiveHealth();
                     return true;
                 case EAction.Nothing:
                     return true;
@@ -169,6 +191,12 @@ namespace Components.Ant
         #endregion
 
         #region helpers
+
+        public float GetNeighbourCount()
+        {
+            return _neighbourList.Count;
+            
+        }
         
         //returns list of valid actions - called every tick!
         public List<EAction> GetValidMoveList(bool isQueen)
@@ -197,10 +225,10 @@ namespace Components.Ant
             
             
             //give health functions
-            //if(CanGiveHealth())
-                //outList.Add(EAction.GiveHealth);
+            if(CanGiveHealth())
+                outList.Add(EAction.GiveHealth);
             
-            if(isQueen)
+            if(isQueen && (this.transform.position.y < SimulationManager.Instance.worldHeight-1))
                 outList.Add(EAction.Build);
             
             outList.Add(EAction.Nothing);
@@ -226,20 +254,21 @@ namespace Components.Ant
             return (BlockHelper.GetBlockType(block));
         }
         
-        //todo: functionality surrounding give health
         private bool CanGiveHealth()
         {
             Collider[] neighbours = Physics.OverlapSphere(transform.position, 1.0f);
             bool hasNeighbour = false;
-            
+            _neighbourList.Clear();
             foreach (var hit in neighbours)
             {
-                if (hit.tag.Equals("Ant"))
+                if (hit.tag.Equals("Ant") && !hit.gameObject.Equals(this.gameObject))
                 {
                     hasNeighbour = true;
-                    _neighbourList.Add(hit.gameObject);
+                    _neighbourList.Add(hit.gameObject.GetComponent<AntBase>());
                 }
             }
+            
+            
 
             return hasNeighbour;
         }
