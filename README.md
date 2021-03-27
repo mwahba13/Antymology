@@ -31,7 +31,7 @@ My motivation for choosing these inputs, is that I hope for the ant's to eventua
 
 The output layer corresponds to the set of all actions an ant can take. A value is generated between -1 and 1. These values are sorted, and the highest value decides the decision the ant will make. If the highest rated action is invalid (i.e. an ant is unable to move forward) then the next highest rated action will be taken, and so on and so forth.
 
-
+![NNTop](Images/NNTopology.png)
 
 
 ## Controls
