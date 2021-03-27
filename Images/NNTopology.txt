@@ -1,0 +1,120 @@
+digraph G {
+        fontname = "Hilda 10"
+        rankdir=LR
+        splines=line
+        nodesep=.08;
+        ranksep=1;
+        edge [color=black, arrowsize=.5];
+        node [fixedsize=true,label="",style=filled,color=none,fillcolor=gray,shape=circle]
+
+        subgraph cluster_0 {
+                color=none;
+                node [style=filled, color=white, penwidth=15,fillcolor=black shape=circle];
+                 l10  l11  l12  ;
+                label = Input;
+        }
+
+        subgraph cluster_1 {
+                color=none;
+                node [style=filled, color=white, penwidth=15,fillcolor=gray shape=circle];
+                 l20  l21  l22  l23  l24  ;
+                label = Hidden;
+        }
+
+        subgraph cluster_2 {
+                color=none;
+                node [style=filled, color=white, penwidth=15,fillcolor=gray shape=circle];
+                 l30  l31  l32  l33  l34  ;
+                label = Hidden;
+        }
+
+        subgraph cluster_3 {
+                color=none;
+                node [style=filled, color=white, penwidth=15,fillcolor=gray shape=circle];
+                 l40  l41  l42  l43  l44  ;
+                label = Hidden;
+        }
+
+        subgraph cluster_4 {
+                color=none;
+                node [style=filled, color=white, penwidth=15,fillcolor=black shape=circle];
+                 l50  l51  ;
+                label = Output;
+        }
+
+        l10 -> l20
+        l10 -> l21
+        l10 -> l22
+        l10 -> l23
+        l10 -> l24
+        l11 -> l20
+        l11 -> l21
+        l11 -> l22
+        l11 -> l23
+        l11 -> l24
+        l12 -> l20
+        l12 -> l21
+        l12 -> l22
+        l12 -> l23
+        l12 -> l24
+        l20 -> l30
+        l20 -> l31
+        l20 -> l32
+        l20 -> l33
+        l20 -> l34
+        l21 -> l30
+        l21 -> l31
+        l21 -> l32
+        l21 -> l33
+        l21 -> l34
+        l22 -> l30
+        l22 -> l31
+        l22 -> l32
+        l22 -> l33
+        l22 -> l34
+        l23 -> l30
+        l23 -> l31
+        l23 -> l32
+        l23 -> l33
+        l23 -> l34
+        l24 -> l30
+        l24 -> l31
+        l24 -> l32
+        l24 -> l33
+        l24 -> l34
+        l30 -> l40
+        l30 -> l41
+        l30 -> l42
+        l30 -> l43
+        l30 -> l44
+        l31 -> l40
+        l31 -> l41
+        l31 -> l42
+        l31 -> l43
+        l31 -> l44
+        l32 -> l40
+        l32 -> l41
+        l32 -> l42
+        l32 -> l43
+        l32 -> l44
+        l33 -> l40
+        l33 -> l41
+        l33 -> l42
+        l33 -> l43
+        l33 -> l44
+        l34 -> l40
+        l34 -> l41
+        l34 -> l42
+        l34 -> l43
+        l34 -> l44
+        l40 -> l50
+        l40 -> l51
+        l41 -> l50
+        l41 -> l51
+        l42 -> l50
+        l42 -> l51
+        l43 -> l50
+        l43 -> l51
+        l44 -> l50
+        l44 -> l51
+}
