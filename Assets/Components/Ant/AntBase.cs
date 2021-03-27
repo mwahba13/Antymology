@@ -35,7 +35,7 @@ namespace Components.Ant
         private int _antID;
         
         //ant stats needed for NN
-        public float healthDonated = 0.0f;
+        public float healthDonatedToQueen = 0.0f;
         public float blocksBuilt = 0.0f;
         public float blocksDug = 0.0f;
         public float mulchEaten = 0.0f;
@@ -71,44 +71,52 @@ namespace Components.Ant
             //get list of possible movements
             List<EAction> actionList = _antBody.GetValidMoveList(_isQueen);
 
+            
+            //TODO: Add biases to these nnOUts
             float[] nnOut;
             if (_isQueen)
                 nnOut = _antBrain.RunQueenNeuralNet(
+                    _health,
                     blocksBuilt,
                     mulchEaten,
-                    _antBody.GetNeighbourCount()
-                    );
+                    _antBody.GetNeighbourCount(),
+                    _antBody.GetDistToNearestNeigh()
+                );
             else
                 nnOut = _antBrain.RunAntNeuralNet(
-                                blocksDug,
-                                _health,
-                                healthDonated
-                                );
+                _health,
+                    blocksDug,
+            _health,
+                    healthDonatedToQueen, 
+            (transform.position - SimulationManager.Instance.GetQueenLocation()).magnitude
+                    );
+
+
+            nnOut = AddBiases(nnOut);
             
-            Debug.Log(" ");
-            Debug.Log("Ant: " + this.GetInstanceID());
-            Debug.Log("Fr: " + nnOut[0]);
-            Debug.Log("Bck: "+nnOut[1]);
-            Debug.Log("Rit: "+nnOut[2]);
-            Debug.Log("Lft: "+nnOut[3]);
-            Debug.Log("Eat: "+nnOut[4]);
-            Debug.Log("Dig: "+nnOut[5]);
-            Debug.Log("Hlth: "+nnOut[6]);
-            Debug.Log("Bld: "+nnOut[7]);
-            Debug.Log("Nth: "+nnOut[8]);
+            SimulationManager.Instance.LogAntActions(this,nnOut,DecideAction(nnOut,actionList));
             
-            
-            
-            DecideAction(nnOut,actionList);
-            //DepleteHealthOnTick();
+            //DecideAction(nnOut,actionList);
+            DepleteHealthOnTick();
+
+
             //RandomMovement();
         }
 
-        public void Evolve()
+
+        //add biases to the output of the neural net to encourage certain behaviors in certain circumstances
+        private float[] AddBiases(float[] weights)
         {
-            _antBrain.UpdateFitnessFunction();
+            //if ant has low health, they should eat
+            if (_health < _antSettings.initalHealth / 2)
+                weights[4] += 0.3f;
+
+            //if queen has lots of health, they should build
+            if (_isQueen && _health > _antSettings.initalHealth / 2)
+                weights[7] += 0.5f;
+
+            return weights;
         }
-        
         
         private void RandomMovement()
         {
@@ -120,7 +128,7 @@ namespace Components.Ant
         /// <summary>
         /// takes input from NN and decides next action
         /// </summary>
-        private void DecideAction(float[] nnOut,List<EAction> actionList)
+        private EAction DecideAction(float[] nnOut,List<EAction> actionList)
         {
             
             //Debug.Log("Ant: " + this.name);
@@ -145,10 +153,10 @@ namespace Components.Ant
 
                 if (actionList.Contains(tryAction))
                 {
-                    Debug.Log("Ant: " + this.name + "Decision made: " + tryAction);
+
                     
                     _antBody.ProcessAction(tryAction);
-                    break;
+                    return tryAction;
                 }
                 //if we cant do the highest rated action - reduce the value so we dont see it again
                 else
@@ -158,8 +166,7 @@ namespace Components.Ant
                 
             }
 
-            _antBrain.UpdateFitnessFunction();
-
+            return EAction.Nothing;
 
         }
         
@@ -186,11 +193,15 @@ namespace Components.Ant
 
         #region helpers
 
+ 
+
         public void ResetStats()
         {
-         healthDonated = 0.0f;
-         blocksBuilt = 0.0f;
-         blocksDug = 0.0f;
+            _health = _antSettings.initalHealth;
+            healthDonatedToQueen = 0.0f;
+            blocksBuilt = 0.0f;
+            blocksDug = 0.0f;
+            mulchEaten = 0.0f;
         }
 
         public int GetAntID()
@@ -237,7 +248,7 @@ namespace Components.Ant
             return _antBrain.GetWeights();
         }
 
-        //TODO: Implement mutation
+        
         public void MutateWeights(float mutatePercentage)
         {
             _antBrain.MutateWeights(mutatePercentage);
@@ -248,16 +259,26 @@ namespace Components.Ant
             _antBrain.SetWeights(newWeights);
         }
         
-        public float GetFitnessFunction()
+        public float CalculateFitnessFunction()
         {
-            return _antBrain.GetFitnessFunction();
+            return _antBrain.CalculateFitnessFunction(_isQueen,
+                _health
+                ,healthDonatedToQueen
+                ,blocksBuilt);
         }
+
+       
 
         //returns a list of valid moves
 
         public void SetIsQueen(bool b)
         {
             _isQueen = b;
+        }
+
+        public bool GetIsQueen()
+        {
+            return _isQueen;
         }
 
         public void SetInitPos(Vector3 trans)

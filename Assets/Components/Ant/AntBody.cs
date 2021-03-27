@@ -43,6 +43,8 @@ namespace Components.Ant
         [SerializeField]
         private List<AntBase> _neighbourList = new List<AntBase>();
 
+        private float _distToNearestNeigh;
+
         #endregion
         
         #region Actions
@@ -86,11 +88,11 @@ namespace Components.Ant
             
             neighAnt.SetHealth(neighAnt.GetHealth()+antSettings.healthDonationAmount);
             _antBase.DecrementHealth(antSettings.healthDonationAmount);
-            _antBase.healthDonated += antSettings.healthDonationAmount;
+            if(neighAnt.GetIsQueen())
+                _antBase.healthDonatedToQueen += antSettings.healthDonationAmount;
 
         }
         
-        //TODO: Fix glitch that queen builds blocks beyond upper limit
         private void BuildBlock()
         {
             AbstractBlock nestBlock = new NestBlock();
@@ -98,7 +100,10 @@ namespace Components.Ant
             WorldManager.Instance.SetBlock((int)transform.position.x,
                 (int)transform.position.y-1,(int)transform.position.z,nestBlock);
             
-            _antBase.SetHealth(_antBase.GetHealth()/3);
+            SimulationManager.Instance.AddNestBlockToList(new Vector3(transform.position.x,
+                transform.position.y-1,transform.position.z));
+            
+            _antBase.SetHealth(_antBase.GetHealth() - (_antBase.GetHealth()/3));
             _antBase.blocksBuilt++;
         }
         
@@ -192,6 +197,11 @@ namespace Components.Ant
 
         #region helpers
 
+        public float GetDistToNearestNeigh()
+        {
+            return _distToNearestNeigh;
+        }
+        
         public float GetNeighbourCount()
         {
             return _neighbourList.Count;
@@ -207,7 +217,7 @@ namespace Components.Ant
             
             if(blockUnder == BlockType.Mulch)
                 outList.Add(EAction.Eat);
-            if(blockUnder != BlockType.Container)
+            if(blockUnder != BlockType.Container && blockUnder != BlockType.Nest)
                 outList.Add(EAction.Dig);
             
             if(CanMove(EAction.ForwardMove))
@@ -256,13 +266,22 @@ namespace Components.Ant
         
         private bool CanGiveHealth()
         {
-            Collider[] neighbours = Physics.OverlapSphere(transform.position, 1.0f);
+            Collider[] neighbours = Physics.OverlapSphere(transform.position, 5.0f);
             bool hasNeighbour = false;
+            _distToNearestNeigh = 999;
+            
             _neighbourList.Clear();
             foreach (var hit in neighbours)
             {
                 if (hit.tag.Equals("Ant") && !hit.gameObject.Equals(this.gameObject))
                 {
+                    float dist = (transform.position - hit.gameObject.transform.position).magnitude;
+                    if ( dist < _distToNearestNeigh)
+                    {
+                        _distToNearestNeigh = dist;
+                        
+                    }
+                    
                     hasNeighbour = true;
                     _neighbourList.Add(hit.gameObject.GetComponent<AntBase>());
                 }

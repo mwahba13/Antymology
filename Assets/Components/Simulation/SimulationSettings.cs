@@ -8,6 +8,8 @@ namespace Components
         //Time in Seconds between simulation ticks
         public float SimulationTickInterval;
 
+        public int NumberOfAnts;
+
         //how many ticks until a new generation is created
         public int TicksUntilEvolution;
 
@@ -16,6 +18,11 @@ namespace Components
 
         //Maximum percentage of original amount a gene can be mutated
         public float MutationPercentage;
+
+        public float MutationPercentageQueen;
+        
+        //number of new ants to create each generation
+        public int NumberOfNewOffspring;
 
     }
 }

@@ -4,6 +4,7 @@ using Antymology.Terrain;
 using Components.Ant;
 using Components.Terrain.Blocks;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 namespace Components
@@ -21,17 +22,29 @@ namespace Components
         public GameObject AntPrefab;
         public GameObject QueenPrefab;
         public float worldHeight;
+        public float worldDimensions;
 
         [SerializeField]
         private float _tickTimer;
         [SerializeField]
         private int _generation = 0;
+
+        private int _totalTicks = 0;
         [SerializeField]
         private int _ticksUntilEvolution;
 
         public Logger _logger;
-        private List<AntBase> _antList = new List<AntBase>();
+        private List<GameObject> _antList = new List<GameObject>();
+        private List<Vector3> _nestBlockList = new List<Vector3>();
         private AntBase _queen;
+        
+        
+        //weights for fitness funciton calculations
+        public float _donateHealthToQueenWeight = 10.0f;
+        public float _distToQueenWeight = -1.0f;
+        public float _healthWeight = 1.0f;
+        public float _blockBuildWeight = 10.0f;
+        public float _queenHealthWeight = 5.0f;
 
         #endregion
 
@@ -51,12 +64,15 @@ namespace Components
 
         private void Update()
         {
+           
+
             
             _tickTimer -= Time.deltaTime;
             if (_tickTimer < 0.0f)
             {
                 TickAnts();
                 _tickTimer = simSettings.SimulationTickInterval;
+                _totalTicks++;
 
                 _ticksUntilEvolution--;
                 if(_ticksUntilEvolution <= 0)
@@ -68,26 +84,25 @@ namespace Components
             
         }
 
-        public void OnApplicationQuit()
-        {
-            
-        }
+
         
         public void GenerateAnts(int numAnts,int dimensions,int height)
         {
-            worldHeight = height;   
+            simSettings.NumberOfAnts = numAnts;
+            worldHeight = height;
+            worldDimensions = dimensions;
             RandomAntGenerator(numAnts,dimensions,height);
             
             //log ants initial state
             foreach (var ant in _antList)
             {
-                _logger.LogAnt(_generation,ant);
+                _logger.LogAnt(_generation,ant.GetComponent<AntBase>());
             }
             //PerlinNoiseAntGenerator(NumAnts,dimensions,height);
             //SpawnQueen(height,dimensions);
         }
 
-        //TODO: ant learning
+    //todo: make the mating not random
         private void Antvolution()
         {
             //we get the top two fitness values and do some reproducing
@@ -96,6 +111,8 @@ namespace Components
 
             float bestFit = -1;
             
+            _logger.WriteAntvolution();
+/*            
             //get top ant
             foreach (var ant in _antList)
                 if (ant.GetFitnessFunction() > bestFit)
@@ -110,29 +127,88 @@ namespace Components
             }
 
             float[][][] childWeights = SexualHealing(topAnt, secondAnt);
-            
+  */
+            //for now mate with two random ants
+            float[][][] childWeights = SexualHealing(_antList[Random.Range(0, _antList.Count - 1)].GetComponent<AntBase>(),
+                _antList[Random.Range(0, _antList.Count - 1)].GetComponent<AntBase>());
             //set new weights of the children ants and mutate them
-            foreach (var ant in _antList)
+            foreach (var antObj in _antList)
             {
+                AntBase ant = antObj.GetComponent<AntBase>();
+                
                 ant.SetWeight(childWeights);
-                ant.ResetStats();
+                //ant.ResetStats();
                 if(Random.Range(0.0f,1.0f) < simSettings.ProbabilityOfMutation)
                     ant.MutateWeights(simSettings.MutationPercentage);
-                _logger.LogAnt(_generation,ant);
+                //_logger.LogAnt(_generation,ant);
             }
             
             
+            //create a bunch of new ants to keep teh bloodlines goin
+            RandomPeasantGenerator(simSettings.NumberOfAnts-_antList.Count,childWeights);
+
+
             
-            _queen.SetWeight(childWeights);
-            _queen.ResetStats();
-            if(Random.Range(0.0f,1.0f) < simSettings.ProbabilityOfMutation)
-                _queen.MutateWeights(simSettings.MutationPercentage);
             
+
+
+            //childWeights = SexualHealing(_queen, _antList[Random.Range(0, _antList.Count - 1)].GetComponent<AntBase>());
+            
+            if(_queen)
+                MutateQueenWeights();
+            //_queen.SetWeight(childWeights);
+            //_queen.ResetStats();
             
             _logger.LogAnt(_generation,_queen);
             
             _ticksUntilEvolution = simSettings.TicksUntilEvolution;
             _generation++;
+        }
+
+
+        private void ResetSimulation(Vector3 QueenTrans)
+        {
+            _generation = 0;
+            
+            //reset world
+            DestroyAllNestBlocks();
+            
+            //make sure queen is not standing on top of old block positions
+            
+            Destroy(_queen.gameObject);
+
+            SpawnAnt((int) QueenTrans.x, (int) QueenTrans.y, (int)worldHeight, true, 420);
+            MutateQueenWeights();
+           
+            
+            
+            
+            foreach(var ant in _antList)
+                ant.GetComponent<AntBase>().ResetStats();
+            _queen.ResetStats();
+
+            
+            //create new ants to replace the dead ones
+            
+            
+        }
+        
+
+        private void MutateQueenWeights()
+        {
+            if (_queen)
+            {
+                AntBase queenBase = _queen.GetComponent<AntBase>();
+            
+                float mutationRange = queenBase.CalculateFitnessFunction();
+                mutationRange /= 100.0f;
+            
+                queenBase.MutateWeights(mutationRange);   
+            }
+            
+
+            
+
         }
 
         /*When I get that feeling
@@ -150,7 +226,7 @@ namespace Components
             {
                 for (int j = 0; j < mommyWeights[i].Length; j++)
                 {
-                    for (int k = 0; k < mommyWeights[i][k].Length; k++)
+                    for (int k = 0; k < mommyWeights[i][j].Length; k++)
                     {
                         float insert;
                         float randFloat = Random.Range(0.0f, 1.0f);
@@ -177,13 +253,31 @@ namespace Components
         private void TickAnts()
         {
             
-            foreach (var ant in _antList)
+            foreach (var antObj in _antList)
             {
-                ant.Tick();
+                AntBase ant = antObj.GetComponent<AntBase>();
+                if (ant)
+                {
+                    if(ant.GetHealth() <= 0.0f)
+                        KillAnt(ant);
+                    if(ant)
+                        ant.Tick();                    
+                }
+                
+
+
                 
             }
-            
-            _queen.Tick();
+
+            if (_queen)
+            {
+                if(_queen.GetHealth() <= 0.0f)
+                    KillAnt(_queen);
+                if(_queen)
+                    _queen.Tick();                
+            }
+
+
             
         }
 
@@ -224,6 +318,36 @@ namespace Components
                     isQueenSpawned = true;
             }
             
+        }
+
+        private void RandomPeasantGenerator(int numAnts,float[][][] childWeights)
+        {
+            int i = 0;
+            //spawn peasant ants
+            while (i < numAnts - 1)
+            {
+                int tempX = Random.Range(1, (int)worldDimensions - 1);
+                int tempZ = Random.Range(1, (int)worldDimensions - 1);
+                
+                
+
+                if (SpawnAnt(tempX, tempZ,(int) worldHeight, false,i,childWeights))
+                    i++;
+            }
+        }
+
+        private void RandomQueenGenerator(float[][][] childWeights)
+        {
+            bool isQueenSpawned = false;
+
+            while (!isQueenSpawned)
+            {
+                int tempX = Random.Range(1, (int)worldDimensions - 1);
+                int tempZ = Random.Range(1, (int)worldDimensions - 1);
+
+                if (SpawnAnt(tempX, tempZ, (int)worldHeight, true,420,childWeights))
+                    isQueenSpawned = true;
+            }
         }
 
         /// <summary>
@@ -282,23 +406,59 @@ namespace Components
 
         #region helpers
 
+        public void AddNestBlockToList(Vector3 transform)
+        {
+            _nestBlockList.Add(transform);
+        }
+
+        public void DestroyAllNestBlocks()
+        {
+            AbstractBlock airBlock = new AirBlock();
+            
+            foreach (Vector3 block in _nestBlockList)
+            {
+                WorldManager.Instance.SetBlock((int)block.x,(int)block.y,(int)block.z,airBlock);
+            }
+        }
+        
+     
+
+        public float GetQueenHealth()
+        {
+            if (!_queen)
+                return 0.0f;
+            return _queen.GetHealth();
+        }
+        
         public Vector3 GetQueenLocation()
         {
+            if(!_queen)
+                return Vector3.zero;
             return _queen.transform.position;
             
         }
-        
-        
 
-        //TODO: kill ant
+        public void LogAntActions(AntBase ant, float[] nnOut, EAction action)
+        {
+            _logger.LogAntWeights(_totalTicks,ant,nnOut,action);
+        }
+
+
         /// <summary>
         /// Kills ant
         /// </summary>
         /// <param name="deadAnt"></param>
         /// <returns></returns>
-        public bool KillAnt(AntBase deadAnt)
+        public void KillAnt(AntBase deadAnt)
         {
-            return true;
+            if (deadAnt.GetIsQueen())
+            {
+                Debug.Log("THE QUEEN IS DEAD; LONG LIVE THE QUEEN");
+                ResetSimulation(deadAnt.transform.position);
+            }
+            
+            _antList.Remove(deadAnt.gameObject);
+            Destroy(deadAnt.gameObject);
         }
         
         /// <summary>
@@ -351,7 +511,62 @@ namespace Components
                 AntBase antBase = newObj.GetComponent<AntBase>();
                 antBase.SetInitPos(boxMarch);
                 antBase.SetAntID(antID);
-                _antList.Add(antBase);
+                _antList.Add(antBase.gameObject);
+              
+            
+                return true;
+            }
+
+            return false;
+
+
+        }
+        
+        private bool SpawnAnt(int x, int z, int height, bool isQueen,int antID,float[][][] childWeights)
+        {
+            //we start at top of box and work our way down until we hit a block
+            Vector3 boxMarch = new Vector3(x, height-1, z);
+            while (WorldManager.Instance.GetBlockType(boxMarch) == BlockType.Air)
+            {
+                boxMarch.y--;
+                
+            }
+            //incrememnt to get empty spot above ground
+            boxMarch.y++;
+
+            Ray antCheckRay = new Ray(boxMarch, Vector3.up);
+            RaycastHit antCheckHit;
+
+            //check if space already occupied
+            if(Physics.SphereCast(antCheckRay, 1.0f, out antCheckHit))
+                if (antCheckHit.collider.tag.Equals("Ant") || antCheckHit.collider.tag.Equals("Queen"))
+                    return false;
+
+            if (isQueen)
+            {
+                GameObject obj = Instantiate<GameObject>(QueenPrefab, boxMarch, Quaternion.identity);
+                obj.name = "Queen" + antID;
+                _queen = obj.GetComponent<AntBase>();
+                _queen.SetWeight(childWeights);
+                _queen.SetAntID(antID);
+                _queen.SetIsQueen(true);
+                _queen.SetInitPos(boxMarch);
+                return true;
+            }
+            else
+            {
+                //add ant to list
+                GameObject newObj = Instantiate<GameObject>(AntPrefab,boxMarch,
+                    Quaternion.identity);
+
+                newObj.name = "Ant" + antID;
+                if (!newObj)
+                    return false;
+                AntBase antBase = newObj.GetComponent<AntBase>();
+                antBase.SetInitPos(boxMarch);
+                antBase.SetWeight(childWeights);
+                antBase.SetAntID(antID);
+                _antList.Add(antBase.gameObject);
               
             
                 return true;

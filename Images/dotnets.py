@@ -4,7 +4,7 @@
 # UPDATE HISTORY
 # April, 2018 - 2to3 - Madhavun Candadai
 
-layers = [3, 5, 5, 5, 2]
+layers = [5, 5, 7, 9]
 
 layers_str = ["Input"] + ["Hidden"] * (len(layers) - 2) + ["Output"]
 layers_col = ["none"] + ["none"] * (len(layers) - 2) + ["none"]

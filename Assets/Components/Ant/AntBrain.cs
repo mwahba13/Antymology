@@ -9,11 +9,13 @@ namespace Components.Ant
     public class AntBrain : MonoBehaviour
     {
 
-        private float _fitnessFunction;
+
+
+        private float _fitness;
         
         private static readonly int[] inputLayers = new int[]
         {
-            3,5,7,9
+            5,5,7,9
         };
         [SerializeField]
         private NeuralNet.NeuralNet nn;
@@ -25,14 +27,16 @@ namespace Components.Ant
         
 
         public float[] RunAntNeuralNet(
-
+            float health,
             float blocksDug,
             float mulchEaten,
-            float healthDonate)
+            float healthDonated,
+            float distToQueen
+            )
         {
             float[] nnInput = new[]
             {
-                blocksDug,mulchEaten,healthDonate
+                health,blocksDug,mulchEaten,healthDonated,distToQueen
             };
             
             return nn.FeedForward(nnInput);
@@ -40,14 +44,16 @@ namespace Components.Ant
         }
 
         public float[] RunQueenNeuralNet(
+            float health,
             float blocksBuilt,
             float mulchEaten,
-            float numNeighbours
+            float numNeighbours,
+            float distToNearestNeigh 
         )
         {
             float[] nnInput = new[]
             {
-                blocksBuilt,
+                health,blocksBuilt,mulchEaten,numNeighbours,distToNearestNeigh
             };
 
             return nn.FeedForward(nnInput);
@@ -69,7 +75,8 @@ namespace Components.Ant
 
                 float value = nn.weights[i][j][k];
 
-                nn.weights[i][j][k] = Random.Range(value - mutatePercent, value + mutatePercent);
+                nn.weights[i][j][k] = Mathf.Clamp( Random.Range(value - mutatePercent, value + mutatePercent)
+                    ,-1.0f,1.0f);
 
                 counter++;
 
@@ -78,16 +85,40 @@ namespace Components.Ant
 
         }
     
-        //todo: fitness function
-        public float UpdateFitnessFunction()
+
+        public float CalculateFitnessFunction(bool isQueen, float health, 
+            float donatedHealth,float blocksBuilt)
         {
-            return 1.0f;
+            float fitness = 0.0f;
+
+            SimulationManager simManage = SimulationManager.Instance;
+
+            fitness += health * simManage._healthWeight;
+
+            if (isQueen)
+            {
+                fitness += blocksBuilt * simManage._blockBuildWeight;
+            }
+
+            else
+            {
+                fitness += donatedHealth * simManage._donateHealthToQueenWeight;
+                fitness += (transform.position - simManage.GetQueenLocation()).magnitude * simManage._distToQueenWeight;
+                fitness += simManage.GetQueenHealth() * simManage._queenHealthWeight;
+            }
+
+            fitness /= 100.0f;
+
+            _fitness = fitness;
+            return fitness;
+
         }
 
         public float GetFitnessFunction()
         {
-            return _fitnessFunction;
+            return _fitness;
         }
+        
 
         public float[][][] GetWeights()
         {

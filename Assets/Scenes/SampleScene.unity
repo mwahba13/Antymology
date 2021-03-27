@@ -339,6 +339,7 @@ GameObject:
   - component: {fileID: 964896557}
   - component: {fileID: 964896559}
   - component: {fileID: 964896560}
+  - component: {fileID: 964896561}
   m_Layer: 0
   m_Name: WorldManager
   m_TagString: Untagged
@@ -358,7 +359,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbd0fdbaf66dc1a4488d999aa299645f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumberOfAnts: 3
+  NumberOfAnts: 20
   blockMaterial: {fileID: 2100000, guid: 4db9d8fce1a69b74f81daf1375c9ed88, type: 2}
 --- !u!4 &964896558
 Transform:
@@ -412,6 +413,20 @@ MonoBehaviour:
     type: 3}
   QueenPrefab: {fileID: 3195483590430319263, guid: 68782f802d91aa54cbd67377ff8f9225,
     type: 3}
+  worldHeight: 0
   _tickTimer: 2
   _generation: 0
   _ticksUntilEvolution: 5
+  _logger: {fileID: 964896561}
+--- !u!114 &964896561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 964896556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7b44b45d13b47aaa0c4537264b494e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

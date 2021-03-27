@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: AntSettings
   m_EditorClassIdentifier: 
   initalHealth: 100
-  healthDecreaseAmount: 10
+  healthDecreaseAmount: 1
+  healthIncreaseAmount: 10
+  healthDonationAmount: 10
   timeStep: 1

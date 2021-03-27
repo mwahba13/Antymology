@@ -93,7 +93,7 @@ namespace Antymology.Terrain
             
             _simManager.GenerateAnts(NumberOfAnts,(ConfigurationManager.Instance.World_Diameter*
                     ConfigurationManager.Instance.Chunk_Diameter),ConfigurationManager.Instance.World_Height
-                                                                  *ConfigurationManager.Instance.World_Diameter);
+                                                                  *ConfigurationManager.Instance.Chunk_Diameter);
         }
 
 

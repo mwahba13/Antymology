@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 502725c06eb640cbba918b86a7e7080e, type: 3}
   m_Name: QueenSettings
   m_EditorClassIdentifier: 
-  initalHealth: 0
-  healthDecreaseAmount: 0
+  initalHealth: 100
+  healthDecreaseAmount: 1
   healthIncreaseAmount: 0
+  healthDonationAmount: 0
   timeStep: 0

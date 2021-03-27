@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SimSettings
   m_EditorClassIdentifier: 
   SimulationTickInterval: 1
-  TicksUntilEvolution: 5
+  TicksUntilEvolution: 2
   ProbabilityOfMutation: 1
   MutationPercentage: 0.2
+  NumberOfNewOffspring: 0
