@@ -33,6 +33,13 @@ The output layer corresponds to the set of all actions an ant can take. A value 
 
 ![NNTop](Images/NNTopology.png)
 
+### Antvolution
+After a pre-determined number of ticks, the ants all undergo sexual reproduction. The two most fit ants are selected and a new set of NN weights are created using cross-over between the two most fit ants. All ants have their health replenished, stats reset and the new set of weights applied to their NN. For each NN there is also a chance for mutation, for a random set of weights to be adjusted. Then, the simulation starts over again.
+
+The process of evolution for the queen is slightly different. Since there is only one queen in the simulation it does not make sense to sexually reproduce the queen with the other ants. Instead, the queen undergoes asexual reproduction where its offspring will mutate the weights of the previous generations weights. The extent of the mutation is conditional on the fitness of the queen. If the queen has high fitness, the mutation will be less severe.
+
+#### Fitness Function
+
 
 ## Controls
 
