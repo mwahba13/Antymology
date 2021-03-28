@@ -42,6 +42,8 @@ After a pre-determined number of ticks, the ants all undergo sexual reproduction
 
 The process of evolution for the queen is slightly different. Since there is only one queen in the simulation it does not make sense to sexually reproduce the queen with the other ants. Instead, the queen undergoes asexual reproduction where its offspring will mutate the weights of the previous generations weights. The extent of the mutation is conditional on the fitness of the queen. If the queen has high fitness, the mutation will be less severe.
 
+Every generation the ant weights resulting from crossover/mutation are stored in a file "Assets/BestWeights.txt".
+
 #### Fitness Function
 
 ### Simulation Loop
@@ -63,6 +65,7 @@ In the Unity Editor there are some simulation settings you can play with in the 
 
 Settings:
 * **Number of Ants:** The number of ants that are present in the simulation
+* **Start with Random Weights:** Determines whether the intial weights for the Ants will be random or will be read from the values stored in the "BestWeights.txt" file.
 * **Weights:** All these weights affect how much an effect each of these parameters have on the calculation of the fitness functions of the ants.
 
 ## Controls
