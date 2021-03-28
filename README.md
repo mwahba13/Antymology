@@ -62,7 +62,8 @@ In the Unity Editor there are some simulation settings you can play with in the 
 ![SimSettings](Images/SimManager.png)
 
 Settings:
-* 
+* **Number of Ants:** The number of ants that are present in the simulation
+* **Weights:** All these weights affect how much an effect each of these parameters have on the calculation of the fitness functions of the ants.
 
 ## Controls
 W,A,S,D - Move Camera
