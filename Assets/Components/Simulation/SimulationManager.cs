@@ -4,6 +4,7 @@ using Antymology.Terrain;
 using Components.Ant;
 using Components.Terrain.Blocks;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
@@ -21,19 +22,23 @@ namespace Components
         public SimulationSettings simSettings;
         public GameObject AntPrefab;
         public GameObject QueenPrefab;
-        public float worldHeight;
-        public float worldDimensions;
+        public Logger _logger;
+
+
+        //whether to intialize ants with random weights, or last best weights in JSON file
+        public bool startWithRandomWeights;
 
         [SerializeField]
         private float _tickTimer;
-        [SerializeField]
+        private float worldHeight;
+        private float worldDimensions;
+        
         private int _generation = 0;
-
         private int _totalTicks = 0;
         [SerializeField]
         private int _ticksUntilEvolution;
 
-        public Logger _logger;
+        private UI _ui;
         private List<GameObject> _antList = new List<GameObject>();
         private List<Vector3> _nestBlockList = new List<Vector3>();
         private AntBase _queen;
@@ -45,6 +50,9 @@ namespace Components
         public float _healthWeight = 1.0f;
         public float _blockBuildWeight = 10.0f;
         public float _queenHealthWeight = 5.0f;
+        public float _distFromStartWeight = 1.0f;
+        
+        
 
         #endregion
 
@@ -52,6 +60,8 @@ namespace Components
 
         private void Start()
         {
+            _ui = GetComponent<UI>();
+            
             _tickTimer = 0.0f;
             _ticksUntilEvolution = simSettings.TicksUntilEvolution;
 
@@ -92,17 +102,24 @@ namespace Components
             worldHeight = height;
             worldDimensions = dimensions;
             RandomAntGenerator(numAnts,dimensions,height);
+
+            float[][][] bestWeights = null;
+
+            if (_generation > 1)
+                bestWeights = simSettings.bestWeight;
             
-            //log ants initial state
+            //sets weights (if we arent creating new ones)
             foreach (var ant in _antList)
             {
-                _logger.LogAnt(_generation,ant.GetComponent<AntBase>());
+                if (!startWithRandomWeights)
+                    ant.GetComponent<AntBase>().SetWeight(simSettings.bestWeight);
+                
+                
             }
             //PerlinNoiseAntGenerator(NumAnts,dimensions,height);
             //SpawnQueen(height,dimensions);
         }
 
-    //todo: make the mating not random
         private void Antvolution()
         {
             //we get the top two fitness values and do some reproducing
@@ -111,26 +128,40 @@ namespace Components
 
             float bestFit = -1;
             
-            _logger.WriteAntvolution();
-/*            
+
+            
             //get top ant
             foreach (var ant in _antList)
-                if (ant.GetFitnessFunction() > bestFit)
-                    topAnt = ant;
+            {
+                AntBase antBase = ant.GetComponent<AntBase>();
+                float topAntFitness = antBase.CalculateFitnessFunction();
+                if (topAntFitness > bestFit)
+                {
+                    bestFit = topAntFitness;
+                    topAnt = antBase;
+                    _ui.SetTopAntField(topAntFitness);
+                }
+            }
+            
 
             bestFit = -1;
             //get second top ant
             foreach (var ant in _antList)
             {
-                if (ant.GetFitnessFunction() > bestFit && !ant.Equals(topAnt))
-                    secondAnt = ant;
+                AntBase antBase = ant.GetComponent<AntBase>();
+                float secAntFit = antBase.CalculateFitnessFunction();
+                if (secAntFit > bestFit && !antBase.Equals(topAnt))
+                {
+                    bestFit = secAntFit;
+                    secondAnt = antBase;
+                }
             }
+            
+            _logger.WriteAntvolution(topAnt,secondAnt);
 
             float[][][] childWeights = SexualHealing(topAnt, secondAnt);
-  */
-            //for now mate with two random ants
-            float[][][] childWeights = SexualHealing(_antList[Random.Range(0, _antList.Count - 1)].GetComponent<AntBase>(),
-                _antList[Random.Range(0, _antList.Count - 1)].GetComponent<AntBase>());
+  
+
             //set new weights of the children ants and mutate them
             foreach (var antObj in _antList)
             {
@@ -147,22 +178,19 @@ namespace Components
             //create a bunch of new ants to keep teh bloodlines goin
             RandomPeasantGenerator(simSettings.NumberOfAnts-_antList.Count,childWeights);
 
-
-            
-            
+            //write downt hte best weight so we can keep iterating on it.
+            simSettings.bestWeight = childWeights;
 
 
             //childWeights = SexualHealing(_queen, _antList[Random.Range(0, _antList.Count - 1)].GetComponent<AntBase>());
             
             if(_queen)
                 MutateQueenWeights();
-            //_queen.SetWeight(childWeights);
-            //_queen.ResetStats();
-            
-            _logger.LogAnt(_generation,_queen);
             
             _ticksUntilEvolution = simSettings.TicksUntilEvolution;
             _generation++;
+            
+            _ui.SetGenerationField(_generation);
         }
 
 
@@ -201,6 +229,7 @@ namespace Components
                 AntBase queenBase = _queen.GetComponent<AntBase>();
             
                 float mutationRange = queenBase.CalculateFitnessFunction();
+                _ui.SetQueenFitField(mutationRange);
                 mutationRange /= 100.0f;
             
                 queenBase.MutateWeights(mutationRange);   
@@ -263,10 +292,7 @@ namespace Components
                     if(ant)
                         ant.Tick();                    
                 }
-                
 
-
-                
             }
 
             if (_queen)
@@ -406,9 +432,22 @@ namespace Components
 
         #region helpers
 
+        public float GetWorldHeight()
+        {
+            return worldHeight;
+            
+        }
+
+        public float GetWorldDimension()
+        {
+            return worldDimensions;
+        }
+        
+        
         public void AddNestBlockToList(Vector3 transform)
         {
             _nestBlockList.Add(transform);
+            _ui.SetNestBlockField(_nestBlockList.Count);
         }
 
         public void DestroyAllNestBlocks()
@@ -419,6 +458,10 @@ namespace Components
             {
                 WorldManager.Instance.SetBlock((int)block.x,(int)block.y,(int)block.z,airBlock);
             }
+            
+            _nestBlockList.Clear();
+            
+            _ui.SetNestBlockField(0.0f);
         }
         
      

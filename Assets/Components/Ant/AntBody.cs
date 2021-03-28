@@ -238,7 +238,7 @@ namespace Components.Ant
             if(CanGiveHealth())
                 outList.Add(EAction.GiveHealth);
             
-            if(isQueen && (this.transform.position.y < SimulationManager.Instance.worldHeight-1))
+            if(isQueen && (this.transform.position.y < SimulationManager.Instance.GetWorldHeight()-1))
                 outList.Add(EAction.Build);
             
             outList.Add(EAction.Nothing);

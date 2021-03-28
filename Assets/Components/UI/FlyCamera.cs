@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
+using UnityEngine.UIElements;
 
 namespace Antymology.UI
 {
@@ -23,13 +25,18 @@ namespace Antymology.UI
         private Vector3 lastMouse = new Vector3(255, 255, 255); //kind of in the middle of the screen, rather than at the top (play)
         private float totalRun = 1.0f;
 
+
+        private void Start()
+        {
+        }
+
         void Update()
         {
             lastMouse = Input.mousePosition - lastMouse;
             lastMouse = new Vector3(-lastMouse.y * camSens, lastMouse.x * camSens, 0);
             lastMouse = new Vector3(transform.eulerAngles.x + lastMouse.x, transform.eulerAngles.y + lastMouse.y, 0);
 
-            if (Input.GetMouseButton(2))
+            if (Input.GetMouseButton(1) )
                 transform.eulerAngles = lastMouse;
             lastMouse = Input.mousePosition;
             //Mouse  camera angle done.  
@@ -52,17 +59,9 @@ namespace Antymology.UI
 
             p = p * Time.deltaTime;
             Vector3 newPosition = transform.position;
-            if (Input.GetKey(KeyCode.Space))
-            { //If player wants to move on X and Z axis only
-                transform.Translate(p);
-                newPosition.x = transform.position.x;
-                newPosition.z = transform.position.z;
-                transform.position = newPosition;
-            }
-            else
-            {
-                transform.Translate(p);
-            }
+
+            transform.Translate(p);
+            
 
         }
 
@@ -85,14 +84,16 @@ namespace Antymology.UI
             {
                 p_Velocity += new Vector3(1, 0, 0);
             }
-            if (Input.GetKey(KeyCode.Q))
+            if (Input.GetKey(KeyCode.Space))
             {
                 p_Velocity += new Vector3(0, 1, 0);
             }
-            if (Input.GetKey(KeyCode.E))
+            if (Input.GetKey(KeyCode.LeftControl))
             {
                 p_Velocity += new Vector3(0, -1, 0);
             }
+
+            
             return p_Velocity;
         }
     }

@@ -7,7 +7,6 @@ namespace Components
 {
     
     
-    //TODO: serialize best weights into a JSON
     /// <summary>
     /// Class for writing values of our simulation to a csv file
     /// </summary>
@@ -16,21 +15,17 @@ namespace Components
 
 
         private StreamWriter _antWriter;
-        private StreamWriter _eventWriter;
+
+
+
 
         public void Start()
         {
-            //_eventWriter = new StreamWriter(Application.dataPath + "\\EventData.csv");
-           // _eventWriter.WriteLine("Tick,Event");
-            
+
             _antWriter = new StreamWriter(Application.dataPath + "\\AntTracker.csv");
             _antWriter.WriteLine("Tick,AntID,MvFwd,MvBck,MvRit,MvLft,Eat,Dig,Hlth,Bld,Nil,Action,Fitness");
         }
-
-        public void LogAnt(int generation, AntBase ant)
-        {
-            //_antWriter.WriteLine(generation + "," + ant.GetAntID()+","+ant.GetFitnessFunction());
-        }
+        
 
         public void LogAntWeights(int tick, AntBase ant, float[] nnOut, EAction action)
         {
@@ -50,19 +45,24 @@ namespace Components
                                  );
         }
 
-        public void WriteAntvolution()
+
+        
+
+        public void WriteAntvolution(AntBase topAnt, AntBase secAnt)
         {
+            _antWriter.WriteLine(" ");
             _antWriter.WriteLine("ANTVOLUTION");
+            _antWriter.WriteLine("Ant: " + topAnt.GetAntID() + " mated with " + "Ant: " + secAnt.GetAntID());
+            _antWriter.WriteLine(" ");
+            
         }
         
 
-        public void writeAntWeights()
-        {
-        }
 
         public void OnApplicationQuit()
         {
             _antWriter.Close();
+
         }
         
     }

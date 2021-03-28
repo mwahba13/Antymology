@@ -414,10 +414,17 @@ MonoBehaviour:
   QueenPrefab: {fileID: 3195483590430319263, guid: 68782f802d91aa54cbd67377ff8f9225,
     type: 3}
   worldHeight: 0
+  worldDimensions: 0
+  startWithRandomWeights: 1
   _tickTimer: 2
   _generation: 0
   _ticksUntilEvolution: 5
   _logger: {fileID: 964896561}
+  _donateHealthToQueenWeight: 10
+  _distToQueenWeight: -1
+  _healthWeight: 1
+  _blockBuildWeight: 10
+  _queenHealthWeight: 5
 --- !u!114 &964896561
 MonoBehaviour:
   m_ObjectHideFlags: 0

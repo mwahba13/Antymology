@@ -82,8 +82,10 @@ namespace Antymology.UI
             WorldManager.Instance.SetBlock(x, y, z, currentBlockType);
         }
 
+        /*
         public void Update()
         {
+            
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                 currentBlockType = new AcidicBlock();
@@ -115,7 +117,9 @@ namespace Antymology.UI
                 ReplaceBlockCursor();
                 currentBlockType = oldBlockType;
             }
+            
         }
+        */
 
     }
 }

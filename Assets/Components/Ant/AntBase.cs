@@ -25,9 +25,7 @@ namespace Components.Ant
         private AntBody _antBody;
         private AntBrain _antBrain;
 
-        [SerializeField]
-        private float[] _decisionWeights;
-        private float _timer;
+
         [SerializeField]
         private float _health;
         
@@ -47,9 +45,9 @@ namespace Components.Ant
         
 
         #region methods
-        private void Start()
+
+        private void Awake()
         {
-            
             _antBody = gameObject.AddComponent<AntBody>() as AntBody;
             _antBody._antBase = this;
             
@@ -58,11 +56,12 @@ namespace Components.Ant
             
             _antBrain = gameObject.AddComponent<AntBrain>() as AntBrain;
             _antBrain.InitNeuralNet();
-            
+        }
+
+        private void Start()
+        {
             _health = _antSettings.initalHealth;
-            _timer = _antSettings.timeStep;
-            
-            
+
         }
 
         public void Tick()
@@ -72,7 +71,6 @@ namespace Components.Ant
             List<EAction> actionList = _antBody.GetValidMoveList(_isQueen);
 
             
-            //TODO: Add biases to these nnOUts
             float[] nnOut;
             if (_isQueen)
                 nnOut = _antBrain.RunQueenNeuralNet(
@@ -264,7 +262,8 @@ namespace Components.Ant
             return _antBrain.CalculateFitnessFunction(_isQueen,
                 _health
                 ,healthDonatedToQueen
-                ,blocksBuilt);
+                ,blocksBuilt
+                ,_initPos);
         }
 
        

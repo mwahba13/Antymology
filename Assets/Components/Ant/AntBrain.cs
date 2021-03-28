@@ -87,13 +87,16 @@ namespace Components.Ant
     
 
         public float CalculateFitnessFunction(bool isQueen, float health, 
-            float donatedHealth,float blocksBuilt)
+            float donatedHealth,float blocksBuilt, Vector3 initPos)
         {
             float fitness = 0.0f;
 
             SimulationManager simManage = SimulationManager.Instance;
 
             fitness += health * simManage._healthWeight;
+            
+            //incentivize ants to move away from where htey start
+            fitness += ((initPos - transform.position).magnitude/100.0f)* simManage._distFromStartWeight;
 
             if (isQueen)
             {
