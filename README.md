@@ -67,7 +67,7 @@ This way the ants can go through many iterations and hopefully, eventually learn
 
 ## Generated Data
 Every simulation tick, the output layer of the neural network and fitness of each ant is captured in a CSV file called "AntTracker.csv" located in the "Assets" folder.
-
+**NOTE: You cannot have the csv file open while running the simulation!**
 ![AntTracker](Images/AntTracker.png)
 
 ## Settings You Can Play With
