@@ -96,7 +96,7 @@ namespace Components.Ant
             fitness += health * simManage._healthWeight;
             
             //incentivize ants to move away from where htey start
-            fitness += ((initPos - transform.position).magnitude/100.0f)* simManage._distFromStartWeight;
+            fitness += ((initPos - transform.position).magnitude)* simManage._distFromStartWeight;
 
             if (isQueen)
             {

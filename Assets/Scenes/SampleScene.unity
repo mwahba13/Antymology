@@ -911,7 +911,7 @@ MonoBehaviour:
   QueenPrefab: {fileID: 3195483590430319263, guid: 68782f802d91aa54cbd67377ff8f9225,
     type: 3}
   _logger: {fileID: 964896561}
-  startWithRandomWeights: 0
+  startWithRandomWeights: 1
   _tickTimer: 2
   _ticksUntilEvolution: 5
   _donateHealthToQueenWeight: 10

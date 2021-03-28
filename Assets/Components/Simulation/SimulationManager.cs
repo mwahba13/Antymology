@@ -34,6 +34,7 @@ namespace Components
         private float worldDimensions;
         
         private int _generation = 0;
+        private int _epoch = 0;
         private int _totalTicks = 0;
         [SerializeField]
         private int _ticksUntilEvolution;
@@ -154,7 +155,8 @@ namespace Components
                 }
             }
             
-            _logger.WriteAntvolution(topAnt,secondAnt);
+            if(topAnt || secondAnt)
+                _logger.LogNewGeneration(topAnt,secondAnt,_generation);
 
             float[][][] childWeights = SexualHealing(topAnt, secondAnt);
   
@@ -195,6 +197,9 @@ namespace Components
         private void ResetSimulation(Vector3 QueenTrans)
         {
             _generation = 0;
+            _epoch++;
+            
+            _logger.LogNewEpoch(_epoch,_nestBlockList.Count);
             
             //reset world
             DestroyAllNestBlocks();
