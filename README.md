@@ -45,6 +45,15 @@ The process of evolution for the queen is slightly different. Since there is onl
 Every generation the ant weights resulting from crossover/mutation are stored in a file "Assets/BestWeights.txt".
 
 #### Fitness Function
+The fitness function for each ant is calculated by adding the following parameters:
+* Ant's Current Health
+* Distance from Starting Position
+* Number of blocks built (applicable only to queen)
+* Health donated to other ants
+* Distance from Queen
+* Queen's Current Health
+
+Each value is multiplied by a "weight" value which can be adjusted in the Simulation Settings (See Settings section below). The higher weight given to a fitness function parameter, the more effect that parameter will have on the calculation of the fitness value.
 
 ### Simulation Loop
 The ants/queens are spawned into the world and go about their business until either a) it is time for evolution or b) the queen is dead (long live the queen). If it is time for evolution, new weights are calculated for each ant and then they keep doing what they are doing. If the queen is dead then the simulation resets but the neural networks weights are preserved. This way the ants can go through many iterations and hopefully, eventually learn how to keep their Ant Queen alive.
