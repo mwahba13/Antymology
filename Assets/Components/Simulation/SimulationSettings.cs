@@ -23,9 +23,7 @@ namespace Components
         
         //number of new ants to create each generation
         public int NumberOfNewOffspring;
-        
-        //current best weighting for ze ants
-        public float[][][] bestWeight;
+
 
     }
 }

@@ -74,8 +74,6 @@ namespace Components
 
         private void Update()
         {
-           
-
             
             _tickTimer -= Time.deltaTime;
             if (_tickTimer < 0.0f)
@@ -88,8 +86,6 @@ namespace Components
                 if(_ticksUntilEvolution <= 0)
                     Antvolution();
                 
-
-
             }
             
         }
@@ -103,19 +99,20 @@ namespace Components
             worldDimensions = dimensions;
             RandomAntGenerator(numAnts,dimensions,height);
 
-            float[][][] bestWeights = null;
-
-            if (_generation > 1)
-                bestWeights = simSettings.bestWeight;
+            //set an arbitrary best weight so we dont get null errors
+            _logger.SetBestWeight(_antList[0].GetComponent<AntBase>().GetWeights());
             
             //sets weights (if we arent creating new ones)
-            foreach (var ant in _antList)
+            if (!startWithRandomWeights && _logger.TryReadWeight())
             {
-                if (!startWithRandomWeights)
-                    ant.GetComponent<AntBase>().SetWeight(simSettings.bestWeight);
-                
-                
+                foreach (var ant in _antList)
+                {
+                    ant.GetComponent<AntBase>().SetWeight(_logger.ReadBestWeight());
+                }
             }
+            
+
+
             //PerlinNoiseAntGenerator(NumAnts,dimensions,height);
             //SpawnQueen(height,dimensions);
         }
@@ -179,7 +176,8 @@ namespace Components
             RandomPeasantGenerator(simSettings.NumberOfAnts-_antList.Count,childWeights);
 
             //write downt hte best weight so we can keep iterating on it.
-            simSettings.bestWeight = childWeights;
+            //simSettings.bestWeight = childWeights;
+            _logger.WriteBestWeights(childWeights);
 
 
             //childWeights = SexualHealing(_queen, _antList[Random.Range(0, _antList.Count - 1)].GetComponent<AntBase>());
