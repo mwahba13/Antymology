@@ -42,7 +42,7 @@ The process of evolution for the queen is slightly different. Since there is onl
 
 ### Simulation Loop
 The ants/queens are spawned into the world and go about their business until either a) it is time for evolution or b) the queen is dead (long live the queen). If it is time for evolution, new weights are calculated for each ant and then they keep doing what they are doing. If the queen is dead then the simulation resets but the neural networks weights are preserved. This way the ants can go through many iterations and hopefully, eventually learn how to keep their Ant Queen alive.
-![Simflow](Image/Antymology_SimFlow.png)
+![Simflow](Images/Antymology_SimFlow.png)
 
 ## Controls
 
