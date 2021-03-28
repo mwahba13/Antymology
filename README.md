@@ -81,10 +81,10 @@ Settings:
 * **Weights:** All these weights affect how much an effect each of these parameters have on the calculation of the fitness functions of the ants.
 
 ## Controls
-W,A,S,D - Move Camera
-Space - Fly Camera Up
-Ctrl - Fly Camera Down
-Right Mouse Button - Rotate Camera
+W,A,S,D - Move Camera </br>
+Space - Fly Camera Up </br>
+Ctrl - Fly Camera Down </br>
+Right Mouse Button - Rotate Camera </br>
 
 ## External Resources
 * Starting code base by Cooper Davies (https://github.com/DaviesCooper/Antymology)
