@@ -4,6 +4,10 @@ This repository is an assignment for CPSC 565 (Emergent Computing) taken at the 
 
 The objective of this assignment is to create a colony of ants that exhibit "intelligent" behaviour. The only goal of this assignment is to implement an evolutionary algorithm which maximizes nest production.
 
+## Instructions
+1. Download or Clone Repo
+2. Open in Unity Editor
+
 ## The Simulation Environment
 The world is made up of a number of worker ants and a single queen ant. Each ant can do the following:
 - Move in any direction
@@ -46,12 +50,22 @@ The ants/queens are spawned into the world and go about their business until eit
 
 ![Simflow](Images/Antymology_SimFlow.png)
 
-## Controls
+
 
 ## Generated Data
 Every simulation tick, the output layer of the neural network and fitness of each ant is captured in a CSV file called "AntTracker.csv" located in the "Assets" folder.
 
 ![AntTracker](Images/AntTracker.png)
+
+## Settings You Can Play With
+In the Unity Editor there are some simulation settings you can play with in the "WorldManager" object.
+
+
+## Controls
+W,A,S,D - Move Camera
+Space - Fly Camera Up
+Ctrl - Fly Camera Down
+Right Mouse Button - Rotate Camera
 
 ## External Resources
 * Starting code base by Cooper Davies (https://github.com/DaviesCooper/Antymology)
