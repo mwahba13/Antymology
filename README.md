@@ -49,4 +49,11 @@ The ants/queens are spawned into the world and go about their business until eit
 ## Controls
 
 ## Generated Data
-Every simulation tick, the output layer of the neural network and fitness of each ant is captured in a CSV file located in the "Assets" folder.
+Every simulation tick, the output layer of the neural network and fitness of each ant is captured in a CSV file called "AntTracker.csv" located in the "Assets" folder.
+
+![AntTracker](Images/AntTracker.png)
+
+## External Resources
+* Starting code base by Cooper Davies (https://github.com/DaviesCooper/Antymology)
+* Script for creating Neural Network Diagram in GraphViz (https://github.com/martisak/dotnets)
+* Neural Network Implementation in C# (https://towardsdatascience.com/building-a-neural-network-framework-in-c-16ef56ce1fef)
