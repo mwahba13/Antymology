@@ -59,7 +59,10 @@ Every simulation tick, the output layer of the neural network and fitness of eac
 
 ## Settings You Can Play With
 In the Unity Editor there are some simulation settings you can play with in the "WorldManager" object.
+![SimSettings](Images/SimManager.png)
 
+Settings:
+* 
 
 ## Controls
 W,A,S,D - Move Camera
