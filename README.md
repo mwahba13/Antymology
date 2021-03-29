@@ -4,6 +4,8 @@ This repository is an assignment for CPSC 565 (Emergent Computing) taken at the 
 
 The objective of this assignment is to create a colony of ants that exhibit "intelligent" behaviour. The only goal of this assignment is to implement an evolutionary algorithm which maximizes nest production.
 
+**NOTE:** I hate bugs. I don't even want to model them. So instead of Ants, I used cute little turtle models from the Unity Asset Store (https://assetstore.unity.com/packages/3d/environments/simplistic-low-poly-nature-93894)
+
 ## Instructions
 1. Download or Clone Repo
 2. Open in Unity Editor
@@ -98,3 +100,4 @@ Right Mouse Button - Rotate Camera </br>
 * Starting code base by Cooper Davies (https://github.com/DaviesCooper/Antymology)
 * Script for creating Neural Network Diagram in GraphViz (https://github.com/martisak/dotnets)
 * Neural Network Implementation in C# (https://towardsdatascience.com/building-a-neural-network-framework-in-c-16ef56ce1fef)
+* Cute Turtle Models from (https://assetstore.unity.com/packages/3d/environments/simplistic-low-poly-nature-93894)
