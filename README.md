@@ -4,6 +4,8 @@ This repository is an assignment for CPSC 565 (Emergent Computing) taken at the 
 
 The objective of this assignment is to create a colony of ants that exhibit "intelligent" behaviour. The only goal of this assignment is to implement an evolutionary algorithm which maximizes nest production.
 
+**NOTE:** I hate bugs. I don't even want to model them. So instead of Ants, I used cute little turtle models from the Unity Asset Store (https://assetstore.unity.com/packages/3d/environments/simplistic-low-poly-nature-93894)
+
 ## Instructions
 1. Download or Clone Repo
 2. Open in Unity Editor
@@ -53,7 +55,7 @@ The fitness function for each ant is calculated by adding the following paramete
 * Distance from Queen
 * Queen's Current Health
 
-Each value is multiplied by a "weight" value which can be adjusted in the Simulation Settings (See Settings section below). The higher weight given to a fitness function parameter, the more effect that parameter will have on the calculation of the fitness value.
+Each value is multiplied by a "weight" value which can be adjusted in the Simulation Settings (See Settings section below). This final calculated value is then divided by 100 to make the number smaller and easier to work with. The higher weight given to a fitness function parameter, the more effect that parameter will have on the calculation of the fitness value.
 
 ### Simulation Loop
 The ants/queens are spawned into the world and go about their business until either a) it is time for evolution or b) the queen is dead (long live the queen). If it is time for evolution, new weights are calculated for each ant and then they keep doing what they are doing. If the queen is dead then the simulation resets but the neural networks weights are preserved. Each time the simulation is reset a new "epoch" is started. Within an epoch there can be many generations (depending how successful the ants are) and within each generation there can be many ticks (this can be adjusted in the settings).
@@ -68,7 +70,15 @@ This way the ants can go through many iterations and hopefully, eventually learn
 ## Generated Data
 Every simulation tick, the output layer of the neural network and fitness of each ant is captured in a CSV file called "AntTracker.csv" located in the "Assets" folder.
 
+**NOTE: You cannot have any of the  csv file open while running the simulation!**
 ![AntTracker](Images/AntTracker.png)
+
+Likewise, another file in the assets folder "GenerationalData.csv" summarizes data from each generation.
+
+## An Early Glimpse at Results
+
+## Conclusions...
+
 
 ## Settings You Can Play With
 In the Unity Editor there are some simulation settings you can play with in the "WorldManager" object.
@@ -90,3 +100,4 @@ Right Mouse Button - Rotate Camera </br>
 * Starting code base by Cooper Davies (https://github.com/DaviesCooper/Antymology)
 * Script for creating Neural Network Diagram in GraphViz (https://github.com/martisak/dotnets)
 * Neural Network Implementation in C# (https://towardsdatascience.com/building-a-neural-network-framework-in-c-16ef56ce1fef)
+* Cute Turtle Models from (https://assetstore.unity.com/packages/3d/environments/simplistic-low-poly-nature-93894)
