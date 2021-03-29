@@ -87,7 +87,7 @@ I ran the simulation for an extended period of time to examine how the fitness o
 ![AntFitOverTime](Images/AntFitOverTime.png)
 This first graph shows the change in fitness of the alpha-ant as a function of time. Each epoch is represented as its own colored line. Unfortunately, there is generally a downward trend where fitness is going down as the ants "learn". This is not what was intended as the fitness function is supposed to be maximized in this simulation.
 
-[BlockBuilt](Images/BlocksBuiltOverTime.png)
+![BlockBuilt](Images/BlocksBuiltOverTime.png)
 This second graph shows both the number of blocks built in each epoch and the queen's fitness in each epoch. Since number of blocks built has the greatest weight on queen fitness, it is no surprise that the two lines are positively correlated. Unfortunately, the trend seen here is one of inconsistency. When a queen performs well, that performance is not carried over into the next epoch. This will have to be fixed for this simulation to perform better.
 
 ## Settings You Can Play With
