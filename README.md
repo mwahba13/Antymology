@@ -75,7 +75,20 @@ Every simulation tick, the output layer of the neural network and fitness of eac
 
 Likewise, another file in the assets folder "GenerationalData.csv" summarizes data from each generation.
 
+## A Wee Bit of Results and Discussion
+I ran the simulation for an extended period of time to examine how the fitness of the alpha-ant changed over time. The fitness function weights probably have the biggest impact on the data generated. The weights used were:
+* Donate to Queen Weight: 20
+* Distance to Queen Weight: -10
+* Health Weight: 1
+* Block Build Weight: 20
+* Queen Health Weight: 5
+* Distance From Start Weight: 3
 
+![AntFitOverTime](Images/AntFitOverTime.png)
+This first graph shows the change in fitness of the alpha-ant as a function of time. Each epoch is represented as its own colored line. Unfortunately, there is generally a downward trend where fitness is going down as the ants "learn". This is not what was intended as the fitness function is supposed to be maximized in this simulation.
+
+[BlockBuilt](Images/BlocksBuiltOverTime.png)
+This second graph shows both the number of blocks built in each epoch and the queen's fitness in each epoch. Since number of blocks built has the greatest weight on queen fitness, it is no surprise that the two lines are positively correlated. Unfortunately, the trend seen here is one of inconsistency. When a queen performs well, that performance is not carried over into the next epoch. This will have to be fixed for this simulation to perform better.
 
 ## Settings You Can Play With
 In the Unity Editor there are some simulation settings you can play with in the "WorldManager" object.
