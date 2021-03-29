@@ -18,16 +18,19 @@ namespace Components
         private StreamReader _weightReader;
 
         private StreamWriter _antWriter;
+        private StreamWriter _genWriter;
         private StreamWriter _weightWriter;
 
         private float[][][] _bestWeights;
 
 
         private List<float> _avgAntFitness = new List<float>();
+        
 
         public void Start()
         {
-
+            _genWriter = new StreamWriter(Application.dataPath + "\\GenerationalData.csv");
+            _genWriter.WriteLine("Epoch,Generation,Top Ant Fitness, Queen Fitness, Blocks Built");
 
             _antWriter = new StreamWriter(Application.dataPath + "\\AntTracker.csv");
             _antWriter.WriteLine("Tick,AntID,Health,MvFwd,MvBck,MvRit,MvLft,Eat,Dig,Hlth,Bld,Nil,Action,Fitness");
@@ -60,44 +63,65 @@ namespace Components
 
         
 
-        public void LogNewGeneration(AntBase topAnt, AntBase secAnt, float generation)
+        public void LogNewGeneration(AntBase topAnt, AntBase secAnt, AntBase queen, 
+            float generation, float epoch, int blocksBuilt)
         {
             _antWriter.WriteLine(" ");
             _antWriter.WriteLine("ANTVOLUTION -- GENERATION: " + generation );
             _antWriter.WriteLine("Ant: " + topAnt.GetAntID() + " mated with " + "Ant: " + secAnt.GetAntID());
             _antWriter.WriteLine("Average Ant Fitness: " + _avgAntFitness.Average());
             _antWriter.WriteLine(" ");
-            
+
+
+            _genWriter.WriteLine(epoch
+                       + "," + generation
+                       + "," + topAnt.CalculateFitnessFunction()
+                       + "," + queen.CalculateFitnessFunction()
+                       + "," + blocksBuilt
+                                );
+
         }
         
-        public void LogNewEpoch(float epochNum, int blocksBuilt )
+        public void LogNewEpoch(float epochNum,float genNum , int blocksBuilt )
         {
             _antWriter.WriteLine(" ");
             _antWriter.WriteLine("Hark! The sun has set on the formics, let the new dawn be a kinder one");
-            _antWriter.WriteLine("Epoch number " + epochNum + " has ended.");
+            _antWriter.WriteLine("Epoch number " + epochNum + " has ended after " + genNum + " generations");
             _antWriter.WriteLine(blocksBuilt + " Blocks have been built. Now they turn to dust...");
             _antWriter.WriteLine(" ");
             
+            /*
             Debug.Log("Hark! The sun has set on the formics, let the new dawn be a kinder one");
             Debug.Log("Epoch number " + epochNum + " has ended.");
             Debug.Log(blocksBuilt + " Blocks have been built. Now they turn to dust...");
+            */
         } 
-
+        
 
         public void WriteBestWeights(float[][][] weights)
         {
-            _weightWriter = new StreamWriter(Application.dataPath + "\\BestWeight.txt");
-            for (int i = 0; i < weights.Length;i++)
+            try
             {
-                for (int j = 0; j < weights[i].Length; j++)
+                _weightWriter = new StreamWriter(Application.dataPath + "\\BestWeight.txt");
+                _bestWeights = weights;
+                for (int i = 0; i < weights.Length;i++)
                 {
-                    for (int k = 0; k < weights[i][j].Length; k++)
+                    for (int j = 0; j < weights[i].Length; j++)
                     {
-                        _weightWriter.WriteLine(weights[i][j][k]);
+                        for (int k = 0; k < weights[i][j].Length; k++)
+                        {
+                            _weightWriter.WriteLine(weights[i][j][k]);
+                        }
                     }
                 }
+                _weightWriter.Close();
             }
-            _weightWriter.Close();
+            catch (IOException e)
+            {
+                Console.WriteLine(e);
+                
+            }
+
         }
 
         public float[][][] ReadBestWeight()
@@ -110,7 +134,8 @@ namespace Components
                 {
                     for (int k = 0; k < _bestWeights[i][j].Length; k++)
                     {
-                        _bestWeights[i][j][k] = float.Parse(_weightReader.ReadLine());
+                        float value = float.Parse(_weightReader.ReadLine());
+                        _bestWeights[i][j][k] = value;
                     }
                 }
             }
@@ -150,7 +175,7 @@ namespace Components
         public void OnApplicationQuit()
         {
             _antWriter.Close();
-
+            _genWriter.Close();
 
         }
         

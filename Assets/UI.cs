@@ -6,12 +6,18 @@ using UnityEngine.UI;
 public class UI : MonoBehaviour
 {
     //fields for the UI
+    public Text uiEpochField;
     public Text uiGenerationField;
     public Text uiNestBlockField;
     public Text uiQueenFitField;
     public Text uiTopAntField;
 
 
+    public void SetEpochField(float ep)
+    {
+        uiEpochField.text = ep.ToString();
+    }
+    
     public void SetGenerationField(float gen)
     {
         uiGenerationField.text = gen.ToString();

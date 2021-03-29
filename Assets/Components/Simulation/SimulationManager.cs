@@ -30,11 +30,13 @@ namespace Components
 
         [SerializeField]
         private float _tickTimer;
+
+        [SerializeField] private float _timeMultiplier;
         private float worldHeight;
         private float worldDimensions;
         
-        private int _generation = 0;
-        private int _epoch = 0;
+        private int _generation = 1;
+        private int _epoch = 1;
         private int _totalTicks = 0;
         [SerializeField]
         private int _ticksUntilEvolution;
@@ -62,11 +64,12 @@ namespace Components
         private void Start()
         {
             _ui = GetComponent<UI>();
+            _ui.SetEpochField(_epoch);
+            _ui.SetGenerationField(_generation);
             
             _tickTimer = 0.0f;
             _ticksUntilEvolution = simSettings.TicksUntilEvolution;
 
-            Debug.Log(Application.dataPath);
             _logger = GetComponent<Logger>();
 
 
@@ -75,8 +78,15 @@ namespace Components
 
         private void Update()
         {
+
+            if (_antList.Count < 5)
+            {
+                RandomPeasantGenerator(simSettings.NumberOfAnts-_antList.Count);
+                ResetSimulation(_queen.transform.position);
+            }
+
             
-            _tickTimer -= Time.deltaTime;
+            _tickTimer -= Time.deltaTime*_timeMultiplier;
             if (_tickTimer < 0.0f)
             {
                 TickAnts();
@@ -102,13 +112,15 @@ namespace Components
 
             //set an arbitrary best weight so we dont get null errors
             _logger.SetBestWeight(_antList[0].GetComponent<AntBase>().GetWeights());
+            _logger.ReadBestWeight();
+            
             
             //sets weights (if we arent creating new ones)
             if (!startWithRandomWeights && _logger.TryReadWeight())
             {
                 foreach (var ant in _antList)
                 {
-                    ant.GetComponent<AntBase>().SetWeight(_logger.ReadBestWeight());
+                    ant.GetComponent<AntBase>().SetWeight(_logger.GetBestWeight());
                 }
             }
             
@@ -124,7 +136,7 @@ namespace Components
             AntBase topAnt = null;
             AntBase secondAnt = null;
 
-            float bestFit = -1;
+            float bestFit = -100;
             
 
             
@@ -142,7 +154,7 @@ namespace Components
             }
             
 
-            bestFit = -1;
+            bestFit = -100;
             //get second top ant
             foreach (var ant in _antList)
             {
@@ -155,51 +167,66 @@ namespace Components
                 }
             }
             
-            if(topAnt || secondAnt)
-                _logger.LogNewGeneration(topAnt,secondAnt,_generation);
+            if(topAnt && secondAnt && _queen)
+                _logger.LogNewGeneration(topAnt,secondAnt,_queen,
+                    _generation,_epoch,_nestBlockList.Count);
 
-            float[][][] childWeights = SexualHealing(topAnt, secondAnt);
+            try
+            {
+
+                float[][][] childWeights = SexualHealing(topAnt, secondAnt);
   
 
-            //set new weights of the children ants and mutate them
-            foreach (var antObj in _antList)
-            {
-                AntBase ant = antObj.GetComponent<AntBase>();
+                //set new weights of the children ants and mutate them
+                foreach (var antObj in _antList)
+                {
+                    AntBase ant = antObj.GetComponent<AntBase>();
                 
-                ant.SetWeight(childWeights);
-                //ant.ResetStats();
-                if(Random.Range(0.0f,1.0f) < simSettings.ProbabilityOfMutation)
-                    ant.MutateWeights(simSettings.MutationPercentage);
-                //_logger.LogAnt(_generation,ant);
+                    ant.SetWeight(childWeights);
+                    //ant.ResetStats();
+                    if(Random.Range(0.0f,1.0f) < simSettings.ProbabilityOfMutation)
+                        ant.MutateWeights(simSettings.MutationPercentage);
+                    //_logger.LogAnt(_generation,ant);
+                }
+            
+            
+                //create a bunch of new ants to keep teh bloodlines goin
+                RandomPeasantGenerator(simSettings.NumberOfAnts-_antList.Count,childWeights);
+
+                //write downt hte best weight so we can keep iterating on it.
+                //simSettings.bestWeight = childWeights;
+                _logger.WriteBestWeights(childWeights);
+
+
+                //childWeights = SexualHealing(_queen, _antList[Random.Range(0, _antList.Count - 1)].GetComponent<AntBase>());
+            
+                if(_queen)
+                    MutateQueenWeights();
+            
+                _ticksUntilEvolution = simSettings.TicksUntilEvolution;
+                _generation++;
+            
+                _ui.SetGenerationField(_generation);
             }
-            
-            
-            //create a bunch of new ants to keep teh bloodlines goin
-            RandomPeasantGenerator(simSettings.NumberOfAnts-_antList.Count,childWeights);
+            catch (NullReferenceException e)
+            {
+                Console.WriteLine(e);
+                ResetSimulation(_queen.transform.position);
+            }
 
-            //write downt hte best weight so we can keep iterating on it.
-            //simSettings.bestWeight = childWeights;
-            _logger.WriteBestWeights(childWeights);
-
-
-            //childWeights = SexualHealing(_queen, _antList[Random.Range(0, _antList.Count - 1)].GetComponent<AntBase>());
-            
-            if(_queen)
-                MutateQueenWeights();
-            
-            _ticksUntilEvolution = simSettings.TicksUntilEvolution;
-            _generation++;
-            
-            _ui.SetGenerationField(_generation);
         }
 
 
         private void ResetSimulation(Vector3 QueenTrans)
         {
-            _generation = 0;
-            _epoch++;
+
             
-            _logger.LogNewEpoch(_epoch,_nestBlockList.Count);
+            _epoch++;
+            _ui.SetEpochField(_epoch);
+            
+            _logger.LogNewEpoch(_epoch,_generation,_nestBlockList.Count);
+            
+            _generation = 0;
             
             //reset world
             DestroyAllNestBlocks();
@@ -284,30 +311,36 @@ namespace Components
 
         private void TickAnts()
         {
-            
-            foreach (var antObj in _antList)
+            try
             {
-                AntBase ant = antObj.GetComponent<AntBase>();
-                if (ant)
+                foreach (var antObj in _antList)
                 {
-                    if(ant.GetHealth() <= 0.0f)
-                        KillAnt(ant);
-                    if(ant)
-                        ant.Tick();                    
+                    AntBase ant = antObj.GetComponent<AntBase>();
+                    if (ant)
+                    {
+                        if(ant.GetHealth() <= 0.0f)
+                            KillAnt(ant);
+                        if(ant)
+                            ant.Tick();                    
+                    }
+
                 }
 
+                if (_queen)
+                {
+                    if(_queen.GetHealth() <= 0.0f)
+                        KillAnt(_queen);
+                    if(_queen)
+                        _queen.Tick();                
+                }                
             }
-
-            if (_queen)
+            catch (InvalidOperationException e)
             {
-                if(_queen.GetHealth() <= 0.0f)
-                    KillAnt(_queen);
-                if(_queen)
-                    _queen.Tick();                
+                Console.WriteLine(e);
             }
 
 
-            
+
         }
 
         
@@ -361,6 +394,21 @@ namespace Components
                 
 
                 if (SpawnAnt(tempX, tempZ,(int) worldHeight, false,i,childWeights))
+                    i++;
+            }
+        }
+
+        private void RandomPeasantGenerator(int numAnts)
+        {
+            int i = 0;
+            //spawn peasant ants
+            while (i < numAnts - 1)
+            {
+                int tempX = Random.Range(1, (int)worldDimensions - 1);
+                int tempZ = Random.Range(1, (int)worldDimensions - 1);
+                
+                
+                if (SpawnAnt(tempX, tempZ,(int) worldHeight, false,i))
                     i++;
             }
         }
