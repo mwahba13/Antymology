@@ -75,9 +75,6 @@ Every simulation tick, the output layer of the neural network and fitness of eac
 
 Likewise, another file in the assets folder "GenerationalData.csv" summarizes data from each generation.
 
-## An Early Glimpse at Results
-
-## Conclusions...
 
 
 ## Settings You Can Play With
